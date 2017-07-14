@@ -10,6 +10,10 @@ $(function() {
 			loginDenied(data.message);
 		}
 	});
+
+	socket.on("chat in", function(data) {
+		displayChatMessage(data.room, data.username, data.message);
+	});
 });
 
 // PASSWORDS / ACCOUNTS NOT IMPLEMENTED YET
@@ -20,3 +24,9 @@ function sendLoginRequest(username, password) {
 	});
 }
 
+function sendChatMessage(room, message) {
+	socket.emit("chat out", {
+		room: room,
+		message: message
+	});
+}

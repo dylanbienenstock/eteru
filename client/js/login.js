@@ -43,6 +43,7 @@ function loginAccepted(message) {
 	.css({ opacity: 1, color: "#00FF00" })
 	.text(message);
 
+
 	centerLogin();
 	clearTimeout(loginMessageFadeTimeout);
 

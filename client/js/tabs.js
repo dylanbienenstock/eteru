@@ -2,7 +2,7 @@ var tabs = [];
 var tabNames = {};
 var pages = [];
 var firstTabAnimationRegistered = false;
-var currentTabPage;
+var currentTabPage; // { id, page, name }
 
 function newTab(name, text) {
 	var isFirstTab = tabs.length == 0;
