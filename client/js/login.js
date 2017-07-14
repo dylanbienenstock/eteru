@@ -44,6 +44,7 @@ function loginAccepted(message) {
 	.text(message);
 
 	centerLogin();
+	clearTimeout(loginMessageFadeTimeout);
 
 	setTimeout(function() {
 		$("#veil").fadeOut(600);
