@@ -11,11 +11,12 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.15.2",
+    "localtunnel": "^1.8.3",
     "socket.io": "^2.0.3",
     "validator": "^8.0.0"
   },
-  "repository" :
-  { "type" : "git"
-  , "url" : "https://github.com/dylanbienenstock/eteru.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dylanbienenstock/eteru.git"
   }
 }
