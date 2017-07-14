@@ -1,0 +1,101 @@
+#left-sidebar {
+	position: relative;
+	min-width: 216px;
+	max-width: 216px;
+
+	box-sizing: border-box;
+	border-right: 1px solid var(--chat-trim);
+	background-color: var(--sidebar-bg);
+
+	z-index: 3;
+}
+
+#right-sidebar {
+	min-width: 216px;
+	max-width: 216px;
+	border-left: 1px solid var(--chat-trim);
+	background-color: var(--sidebar-bg);
+
+	z-index: 3;
+}
+
+.sidebar-handle {
+	position: absolute;
+	width: 32px;
+	height: 32px;
+	line-height: 32px;
+	text-align: center;
+	font-size: 20px;
+
+	opacity: 0;
+	background-color: var(--chat-trim);
+	color: var(--chat-bg);
+
+	-webkit-border-radius: 16px;
+	-moz-border-radius: 16px;
+	border-radius: 16px;
+
+	-webkit-transition: opacity 200ms ease;
+	-moz-transition: opacity 200ms ease;
+	-ms-transition: opacity 200ms ease;
+	-o-transition: opacity 200ms ease;
+	transition: opacity 200ms ease;
+
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+
+	cursor: pointer;
+	z-index: 100;
+}
+
+.sidebar-element-container-left {
+	width: 200px;
+}
+
+.sidebar-element-title {
+	color: #808080;
+	font-size: 14px;
+	font-style: bold;
+	font-family: "Source Code Pro", monospace;
+}
+
+.sidebar-element {
+	margin-top: 8px;
+	padding: 8px 8px 8px 8px;
+
+	font-size: 14px;
+	font-family: "Source Code Pro", monospace;
+	background-color: var(--chat-bg);
+	color: #808080;
+
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+}
+
+.active-user-name {
+	font-size: 14px;
+	font-family: "Source Code Pro", monospace;
+	white-space: nowrap;
+  	overflow: hidden;
+  	text-overflow: ellipsis;
+}
+
+#left-sidebar-content {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	padding: 8px 8px 8px 8px;
+	z-index: 99;
+}
+
+#left-sidebar-resize {
+	min-height: 24px;
+	margin: 0 0 0 0;
+	background-color: transparent;
+	cursor: ns-resize;
+}

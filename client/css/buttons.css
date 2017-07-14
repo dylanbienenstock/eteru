@@ -1,0 +1,45 @@
+.compact {
+	position: relative;
+	padding: 2px 4px 2px 4px;
+
+	font-size: 12px;
+	font-family: "Source Code Pro", monospace;
+	color: white;
+	border: none;
+
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+
+	-webkit-transition: background-color 200ms ease;
+	-moz-transition: background-color 200ms ease;
+	-ms-transition: background-color 200ms ease;
+	-o-transition: background-color 200ms ease;
+	transition: background-color 200ms ease;
+
+	cursor: pointer;
+}
+
+.compact:focus {
+	outline: none;
+}
+
+.compact:active {
+	top: 1px;
+}
+
+.red {
+	background-color: hsl(0, 100%, 60%);
+}
+
+.red:hover {
+	background-color: hsl(0, 100%, 80%);
+}
+
+.purple {
+	background-color: hsl(285, 100%, 60%);
+}
+
+.purple:hover {
+	background-color: hsl(285, 100%, 80%);
+}

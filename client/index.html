@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="css/styles.css">
+		<link rel="stylesheet" type="text/css" href="css/login.css">
+		<link rel="stylesheet" type="text/css" href="css/sidebar.css">
+		<link rel="stylesheet" type="text/css" href="css/chat.css">
+		<link rel="stylesheet" type="text/css" href="css/buttons.css">
+
+		<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet">
+
+		<script src="/socket.io/socket.io.js"></script>
+
+		<script src="https://code.jquery.com/jquery-2.1.2.min.js" integrity="sha256-YE7BKn1ea9jirCHPr/EaW5NxmkZZGb52+ZaD2UKodXY=" crossorigin="anonymous"></script>
+
+		<script src="js/jquery.color.js"></script>
+		<script src="js/jquery.resize.js"></script>
+		<script src="js/net.js"></script>
+		<script src="js/skip-transition.js"></script>
+		<script src="js/tabs-animation.js"></script>
+		<script src="js/tabs.js"></script>
+		<script src="js/sidebar.js"></script>
+		<script src="js/login.js"></script>
+		<script src="js/chat.js"></script>
+
+		<title>&#12456;&#12540;&#12486;&#12523; (ethereal)</title>
+	</head>
+
+	<body>
+		<!-- Sidebars -->
+
+		<div id="left-sidebar-content" class="noselect">
+			<div class="sidebar-element-container-left">
+				<span class="sidebar-element-title">room details</span>
+
+				<div id="sbe-room-info" class="sidebar-element">
+					random - this room is for discussions of any topic :^) <br />
+					
+					<button id="sbe-room-info-leave" class="compact red noselect" style="margin-top: 8px;">leave</button>
+					<button id="sbe-room-info-rules" class="compact purple noselect" style="margin-top: 8px;">rules</button>
+				</div>
+			</div>
+
+			<div class="sidebar-element-container-left" style="margin-top: 24px;">
+				<span class="sidebar-element-title">active users (1)</span>
+
+				<div id="sbe-active-users" class="sidebar-element" style="min-height: 175px; max-height: 175px;">
+					<div id="sbe-active-users-content" style="font: inherit; overflow-y: scroll; height: 100%; min-height: inherit; max-height: inherit;">
+					</div>
+				</div>
+			</div>
+
+			<div id="left-sidebar-resize"></div>
+
+			<div id="sbe-current-topics-container" class="sidebar-element-container-left" style="margin-top: 0; flex: 0 1 100%">
+				<span class="sidebar-element-title">current topics (0)</span>
+
+				<div id="sbe-current-topics" class="sidebar-element">
+					<div id="sbe-current-topics-content" style="font: inherit; overflow-y: scroll; height: 100%;">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Layout -->
+
+		<div id="eteru">
+			<div id="left-sidebar" class="column">
+
+			</div>
+
+			<div id="chat-container" class="column">
+				<div id="tabs">
+					<span class="noselect" style="float: right; line-height: 42px; margin-right: 8px; color: #808080;">
+						&#12456;&#12540;&#12486;&#12523; <span style="font-style: italic;"> (ethereal) </span>
+					</span>
+				</div>
+
+				<div id="chat">
+				
+				</div>
+
+				<div id="input">
+					<span id="name-display">TEST:&nbsp;</span><input type="text" id="input-text">
+				</div>
+			</div>
+
+			<div id="right-sidebar" class="column">
+			
+			</div>
+
+			<div id="veil" class="noselect">
+				<div id="login">
+					<div style="line-height: 16px;">
+						<span class="login-title">login</span>
+						<span style="float: right; font-size: 16px;">&#12456;&#12540;&#12486;&#12523; <span style="font-style: italic; font-size: 16px;">(ethereal)</span></span>
+					</div>
+
+					<div style="clear: both;"></div>
+
+					<div style="margin-top: 16px;"><span id="label-username" class="login-label">username</span> <input id="input-username" type="text" class="login-input"></div>
+					<div style="margin-top: 16px; opacity: 0.2;"><span id="label-password" class="login-label">password</span> <input id="input-password" type="password" class="login-input"></div>
+				</div>
+
+				<span id="login-message" class="noselect"></span>
+			</div>
+		</div>
+	</body>
+</html>

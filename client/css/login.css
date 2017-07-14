@@ -1,0 +1,70 @@
+#veil {
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	background-color: #000000;
+
+	z-index: 100000;
+}
+
+#login {
+	position: absolute;
+	padding: 16px 16px 16px 16px;
+
+	color: #808080;
+	background-color: var(--sidebar-bg);
+
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+}
+
+#login-message {
+	color: red;
+
+	font-family: "Source Code Pro", monospace;
+	font-size: 11px;
+	font-style: italic;
+}
+
+.login-title {
+	font-family: "Source Code Pro", monospace;
+	font-size: 12px;
+	font-style: italic;
+
+	float: left;
+}
+
+.login-label {
+	font-family: "Source Code Pro", monospace;
+	font-size: 16px;
+	font-style: italic;
+}
+
+.login-input {
+	margin-left: 32px;
+	padding-left: 4px;
+
+	font-family: "Source Code Pro", monospace;
+	font-size: 14px;
+	color: #808080;
+
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+
+	border: 1px solid #808080;
+	background-color: var(--sidebar-bg);
+}
+
+.login-input:focus {
+	outline: none;
+}
+
+.login-textbutton {
+	font-family: "Source Code Pro", monospace;
+	font-size: 12px;
+	color: #808080;
+}
