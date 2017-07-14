@@ -14,13 +14,13 @@ app.get("/", function(req, res) {
 
 io.on("connection", onConnect);
 
-http.listen(3000, function() {
-  console.log("listening on *:3000");
+http.listen(8080, function() {
+  console.log("listening on *:8080");
 });
 
 /*
 
-			  PACKET FORMATS
+/!\ PACKET FORMATS /!\
 (client to server: ->, server to client: <-)
 --------------------------------------------
 
@@ -28,13 +28,19 @@ http.listen(3000, function() {
 <- "login response" - { bool: accepted, string: message }
 <- "user connected" - { string: username, string: message }
 <- "user disconnected" - { string: username, string: message }
+-> "chat out" - { string: room, string: message } --- "out" is relative to client, not server
+<- "chat in" - { string: room, string: username, string: message } --- "username" refers to the sender
 
 */
 
-var takenUsernames = [];
+var usernameList = {} // Key: socket.id, Value: username
 var usernameValidator = /^([A-Za-z0-9\-]+)$/g;
 
 function onConnect(socket) {
+	socket.on("disconnect", function() {
+		delete usernameList[socket.id];
+	});
+
 	socket.on("login request", function(data) {
 		var loginResponse = processLoginRequest(data);
 
@@ -44,7 +50,7 @@ function onConnect(socket) {
 		});
 
 		if (loginResponse.accepted) {
-			takenUsernames.push(data.username);
+			usernameList[socket.id] = data.username;
 
 			socket.broadcast.emit("user connected", {
 				username: data.username,
@@ -52,6 +58,24 @@ function onConnect(socket) {
 			});
 		}
 	});
+
+	socket.on("chat out", function(data) {
+		io.emit("chat in", {
+			room: data.room,
+			username: usernameList[socket.id],
+			message: data.message
+		});
+	});
+}
+
+function getSocketIdByUsername(username) {
+	for (var socketid in usernameList) {
+		if (usernameList.hasOwnProperty(socketid) && usernameList[socketid] == username) {
+			return socketid;
+		}
+	}
+
+	return null;
 }
 
 function processLoginRequest(data) {
@@ -62,10 +86,12 @@ function processLoginRequest(data) {
 		loginResponse.message = "Use only letters, numbers, and hyphens.";
 	}
 
-	if (takenUsernames.includes(data.username)) {
+	if (getSocketIdByUsername(data.username) != null) {
 		loginResponse.accepted = false;
 		loginResponse.message = "That username is currently taken.";
 	}
+
+	console.log(data.username + " connected"); // DEBUG
 
 	return loginResponse;
 }
