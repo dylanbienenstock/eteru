@@ -43,13 +43,19 @@ function loginAccepted(message) {
 	.css({ opacity: 1, color: "#00FF00" })
 	.text(message);
 
+	$("#input-username").stop().css({ color: "#00FF00", borderColor: "#00FF00" });
+	$("#label-username").stop().css({ color: "#00FF00" })
 
 	centerLogin();
 	clearTimeout(loginMessageFadeTimeout);
 
 	setTimeout(function() {
 		$("#veil").fadeOut(600);
-	}, 1500);
+
+			// setTimeout(function() {
+			// 	document.getElementById("input-text").focus();
+			// }, 200);
+	}, 1200);
 }
 
 function loginDenied(message) {
