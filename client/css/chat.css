@@ -3,27 +3,59 @@
 	border-bottom: 1px solid var(--chat-trim);
 	background-color: var(--chat-bg);
 
-	padding: 16px 16px 16px 16px;
+	padding: 0 0 16px 0;
 	z-index: 1;
 
 	overflow-y: hidden;
+	overflow-x: hidden;
 }
 
 .chat-tab-page {
 	width: 100%;
 	height: 100%;
-	padding-right: 8px;
-	overflow-y: scroll;
-	overflow-x: wrap;
+	overflow-y: hidden;
+	overflow-x: hidden;
 
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 	-ms-word-break: break-all;
-     word-break: break-all;
+    word-break: break-all;
+
+    font-size: 0;
 }
 
-.message-test > span {
+.message-container-1 {
+	padding: 16px 16px 16px 16px;
+}
+
+.message-container-2 {
+	vertical-align:top;
+	display: inline-block;
+	height: 100%;
+}
+
+.message-container-3 {
+	vertical-align:top;
+	display: inline-block;
+	padding-left: 14px;
+}
+
+.message {
+	width: 100%;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	-ms-word-break: break-all;
+    word-break: break-all;
+}
+
+.message-sender {
 	color: #A0A0A0;
-	font-size: 16px;
+	font-size: 14px;
+	font-family: "Source Code Pro", monospace;
+}
+
+.message-text {
+	color: #A0A0A0;
+	font-size: 14px;
 	font-family: "Source Code Pro", monospace;
 }
