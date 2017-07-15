@@ -29,15 +29,21 @@ http.listen(8080, function() {
 <- "user connected" - { string: username, string: message }
 <- "user disconnected" - { string: username, string: message }
 -> "chat out" - { string: room, string: message } --- "out" is relative to client, not server
-<- "chat in" - { string: room, string: username, string: message } --- "username" refers to the sender
+<- "chat in" - { string: room, string: username, number: hue, string: message } --- "username" refers to the sender, "hue" is temporary
 
 */
 
 var usernameList = {} // Key: socket.id, Value: username
 var usernameValidator = /^([A-Za-z0-9\-]+)$/g;
+var huehuehue = {} // DEBUG
 
 function onConnect(socket) {
 	socket.on("disconnect", function() {
+		if (usernameList[socket.id] != undefined) {
+			console.log("----- DISCONNECT: " + usernameList[socket.id]); // DEBUG
+		}
+
+		delete huehuehue[usernameList[socket.id]]; // DEBUG
 		delete usernameList[socket.id];
 	});
 
@@ -60,11 +66,16 @@ function onConnect(socket) {
 	});
 
 	socket.on("chat out", function(data) {
-		io.emit("chat in", {
-			room: data.room,
-			username: usernameList[socket.id],
-			message: data.message
-		});
+		console.log("(" + data.room + ") " + data.username + ": " + data.message);
+
+		if (data.message.length > 0) {
+			io.emit("chat in", {
+				room: data.room,
+				username: usernameList[socket.id],
+				message: data.message,
+				hue: huehuehue[usernameList[socket.id]] // DEBUG
+			});
+		}
 	});
 }
 
@@ -91,7 +102,8 @@ function processLoginRequest(data) {
 		loginResponse.message = "That username is currently taken.";
 	}
 
-	console.log(data.username + " connected"); // DEBUG
+	console.log("+++++ CONNECT: " + data.username); // DEBUG
+	huehuehue[data.username] = Math.random() * 359; // DEBUG
 
 	return loginResponse;
 }
