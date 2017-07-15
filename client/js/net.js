@@ -14,6 +14,10 @@ $(function() {
 	socket.on("chat in", function(data) {
 		displayChatMessage(data.room, data.username, data.message);
 	});
+
+	socket.on("chat server", function(data) {
+		displayServerMessage(getCurrentTabPage().name, data.message);
+	});
 });
 
 // PASSWORDS / ACCOUNTS NOT IMPLEMENTED YET

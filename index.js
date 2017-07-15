@@ -30,6 +30,7 @@ http.listen(8080, function() {
 <- "user disconnected" - { string: username, string: message }
 -> "chat out" - { string: room, string: message } --- "out" is relative to client, not server
 <- "chat in" - { string: room, string: username, number: hue, string: message } --- "username" refers to the sender, "hue" is temporary
+<- "chat server" { string: color, string: message } --- Global server message
 
 */
 
@@ -41,6 +42,7 @@ function onConnect(socket) {
 	socket.on("disconnect", function() {
 		if (usernameList[socket.id] != undefined) {
 			console.log("----- DISCONNECT: " + usernameList[socket.id]); // DEBUG
+			socket.broadcast.emit("chat server", { message: "--- User disconnected: " + usernameList[socket.id] });
 		}
 
 		delete huehuehue[usernameList[socket.id]]; // DEBUG
@@ -58,15 +60,17 @@ function onConnect(socket) {
 		if (loginResponse.accepted) {
 			usernameList[socket.id] = data.username;
 
-			socket.broadcast.emit("user connected", {
-				username: data.username,
-				message: "User connected: " + data.username
-			});
+			// socket.broadcast.emit("user connected", {
+			// 	username: data.username,
+			// 	message: "User connected: " + data.username
+			// });
+
+			socket.broadcast.emit("chat server", { message: "+++ User connected: " + data.username });
 		}
 	});
 
 	socket.on("chat out", function(data) {
-		console.log("(" + data.room + ") " + data.username + ": " + data.message);
+		console.log("(" + data.room + ") " + usernameList[socket] + ": " + data.message);
 
 		if (data.message.length > 0) {
 			io.emit("chat in", {
