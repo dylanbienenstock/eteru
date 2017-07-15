@@ -29,11 +29,17 @@ function centerLogin() {
 		top: $(window).height() / 2 - $("#login").outerHeight() / 2
 	});
 
+	centerLoginMessage();
+}
+
+function centerLoginMessage() {
 	$("#login-message").offset({
 		left: $("#login").offset().left + $("#login").outerWidth() / 2 - $("#login-message").outerWidth() / 2, 
 		top: $("#login").offset().top + $("#login").outerHeight() + 2
 	});
 }
+
+const FAST_LOGIN_ANIMATION = false;
 
 function loginAccepted(message) {
 	loginWasAccepted = true;
@@ -46,16 +52,23 @@ function loginAccepted(message) {
 	$("#input-username").stop().css({ color: "#00FF00", borderColor: "#00FF00" });
 	$("#label-username").stop().css({ color: "#00FF00" })
 
-	centerLogin();
+	centerLoginMessage();
 	clearTimeout(loginMessageFadeTimeout);
 
-	setTimeout(function() {
-		$("#veil").fadeOut(600);
-
-			// setTimeout(function() {
-			// 	document.getElementById("input-text").focus();
-			// }, 200);
-	}, 1200);
+	if (FAST_LOGIN_ANIMATION) { // 1.6 seconds
+		setTimeout(function() {
+			$("#veil").fadeOut(600);
+		}, 1000);
+	} else { 			  		// 2.9 seconds
+		setTimeout(function() {
+			$("#login-message").fadeOut(600);
+			$("#login").fadeOut(600, function() {
+				setTimeout(function() {
+					$("#veil").fadeOut(600);
+				}, 100);
+			});
+		}, 1000);
+	}
 }
 
 function loginDenied(message) {
@@ -80,5 +93,5 @@ function loginDenied(message) {
 		$("#label-username").stop().animate({ color: "#808080" }, 500);
 	}, 1500);
 
-	centerLogin();
+	centerLoginMessage();
 }
