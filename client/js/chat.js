@@ -1,11 +1,32 @@
+var unseenMessage = false;
+var title = "ethereal ";
+var blinker = "\u25CB";
+
 var lastSender;
 var lastColor;
-var nextMessageLightGray = false;
+
+var nextMessageLightGray = true;
+
 var chatContainerMain;
 var chatContainerName;
 var chatContainerMessages;
 
 $(function() {
+    window.isActive = true;
+    $(window).blur(function() { this.isActive = false; });
+    $(window).focus(function() { 
+    	document.title = title;
+    	this.isActive = true; 
+    	unseenMessage = false;
+    });
+
+    window.setInterval(function() {
+    	if (unseenMessage) {
+    		document.title = title + blinker;
+    		blinker = (blinker == "\u25CB" ? "\u25CF" : "\u25CB");
+    	}
+    }, 500);
+
 	$("#input-text").on("keyup", function (event) {
 	    if (event.keyCode == 13) {
 	    	sendChatMessage(getCurrentTabPage().name, $("#input-text").val());
@@ -20,7 +41,7 @@ function displayChatMessage(tabName, sender, message) {
 	}
 
 	if (nextMessageLightGray) {
-		displayChatMessageRaw(tabName, sender, "#262626", false, true, message);
+		displayChatMessageRaw(tabName, sender, "var(--chat-bg-light)", false, true, message);
 	} else {
 		displayChatMessageRaw(tabName, sender, "transparent", false, true, message);
 	}
@@ -43,6 +64,11 @@ function displayServerMessage(tabName, message) {
 
 // centering not implemented
 function displayChatMessageRaw(tabName, sender, color, centered, showDots, message) {
+	if (!window.isActive) {
+		unseenMessage = true;
+		document.title = title + "\u25CB";
+	}
+
 	var page = getTabPageBy("name", tabName).page;
 
 	if (sender != lastSender || color != lastColor) {
@@ -64,6 +90,8 @@ function displayChatMessageRaw(tabName, sender, color, centered, showDots, messa
 			senderText.innerHTML = sender;
 
 			chatContainerName.appendChild(senderText);
+		} else {
+			chatContainerMessages.style.paddingLeft = 0;
 		}
 
 		chatContainerMain.appendChild(chatContainerName);
