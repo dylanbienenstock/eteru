@@ -1,6 +1,7 @@
 :root {
 	--sidebar-bg: #303030;
 	--chat-bg: #202020;
+	--chat-bg-light: #272727;
 	--chat-trim: #404040;
 	--tab-active: var(--chat-bg);
 	--tab-inactive: #353535;

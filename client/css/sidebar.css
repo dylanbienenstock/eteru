@@ -62,7 +62,6 @@
 .sidebar-element-title {
 	color: #808080;
 	font-size: 14px;
-	font-style: bold;
 	font-family: "Source Code Pro", monospace;
 }
 
@@ -102,4 +101,18 @@
 	margin: 0 0 0 0;
 	background-color: transparent;
 	cursor: ns-resize;
+}
+
+#sbe-active-users {
+	padding-left: 0;
+}
+
+.active-user-listing-container {
+	padding: 4px 8px 4px 8px;
+}
+
+
+.active-user-listing {
+	font-size: 12px;
+	font-family: "Source Code Pro", monospace;
 }
