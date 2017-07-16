@@ -7,9 +7,41 @@ var lastColor;
 
 var nextMessageLightGray = true;
 
-var chatContainerMain;
-var chatContainerName;
-var chatContainerMessages;
+var currentRoomName;
+var chatRooms = {};
+var chatRoomNames = []; // new
+
+function newChatRoom(roomName, title) {
+	var newChatRoom = {
+		name: roomName,
+		pageObject: newPage(roomName, title),
+		activeUsers: [],
+		lastSender: null,
+		lastColor: null,
+		containers: {
+			main: null,
+			name: null,
+			messages: null
+		}
+	};
+
+	chatRooms[roomName] = newChatRoom;
+	chatRoomNames.push(roomName);
+	arrangeTabsSkipTransition();
+}
+
+function setChatRoom(roomName) {
+	var room = chatRooms[roomName];
+
+	if (room != null && room != undefined) {
+		currentRoomName = roomName;
+		clearActiveUserListings();
+
+		for (var i = 0; i < room.activeUsers.length; i++) {
+			addActiveUserListing(roomName, room.activeUsers[i]);
+		}
+	}
+}
 
 $(function() {
     window.isActive = true;
@@ -29,25 +61,65 @@ $(function() {
 
 	$("#input-text").on("keyup", function (event) {
 	    if (event.keyCode == 13) {
-	    	sendChatMessage(getCurrentTabPage().name, $("#input-text").val());
+	    	sendChatMessage(currentRoomName, $("#input-text").val());
 	   		$("#input-text").val("");
 	    }
 	});
 });
 
-function displayChatMessage(tabName, sender, message) {
-	if (sender != lastSender) {
+function addActiveUser(roomName, username) {
+	var room = chatRooms[roomName];
+
+	if (room != null && room != undefined && !room.activeUsers.includes(username)) {
+		room.activeUsers.push(username);
+
+		if (room.name == currentRoomName) {
+			addActiveUserListing(roomName, username);
+		}
+
+		console.log(username + " joined " + roomName);
+	}
+}
+
+function removeActiveUser(roomName, username) {
+	var room = chatRooms[roomName];
+
+	if (room != null && room != undefined) {
+		delete chatRooms[roomName].activeUsers[username];
+
+		removeActiveUserListing(roomName, username, true);
+	}
+}
+
+function handleUserDisconnect(username) {
+	for (var i = 0; i < chatRoomNames.length; i++) {
+		removeActiveUser(chatRoomNames[i], username);
+	}
+}
+
+function roomExists(roomName) {
+	var room = chatRooms[roomName];
+
+	return room != null && room != undefined;
+}
+
+function displayChatMessage(roomName, sender, message) {
+	console.log(roomName + " " + sender + " " + message);
+
+	var room = chatRooms[roomName];
+
+	if (sender != room.lastSender) {
 		nextMessageLightGray = !nextMessageLightGray;
 	}
 
 	if (nextMessageLightGray) {
-		displayChatMessageRaw(tabName, sender, "var(--chat-bg-light)", false, true, message);
+		displayChatMessageRaw(roomName, sender, "var(--chat-bg-light)", false, true, message);
 	} else {
-		displayChatMessageRaw(tabName, sender, "transparent", false, true, message);
+		displayChatMessageRaw(roomName, sender, "transparent", false, true, message);
 	}
 }
 
-function displayColoredChatMessage(tabName, sender, hue, message) {
+function displayColoredChatMessage(roomName, sender, hue, message) {
 	var color = $.Color({ 
 					hue: hue,
 					saturation: 0.375,
@@ -55,67 +127,71 @@ function displayColoredChatMessage(tabName, sender, hue, message) {
 					alpha: 1.0
 				});
 
-	displayChatMessageRaw(tabName, sender, color, false, true, message);
+	displayChatMessageRaw(roomName, sender, color, false, true, message);
 }
 
-function displayServerMessage(tabName, message) {
-	displayChatMessageRaw(tabName, null, "#080808", true, false, message);
+function displayServerMessage(roomName, message) {
+	displayChatMessageRaw(roomName, null, "#080808", true, false, message);
 }
 
 // centering not implemented
-function displayChatMessageRaw(tabName, sender, color, centered, showDots, message) {
-	if (!window.isActive) {
-		unseenMessage = true;
-		document.title = title + "\u25CB";
-	}
+function displayChatMessageRaw(roomName, sender, color, centered, showDots, message) {
+	var room = chatRooms[roomName];
 
-	var page = getTabPageBy("name", tabName).page;
-
-	if (sender != lastSender || color != lastColor) {
-		chatContainerMain = document.createElement("div");
-		chatContainerMain.className = "message-container-1";
-
-		$(chatContainerMain).css({ backgroundColor: color });
-
-		chatContainerName = document.createElement("div");
-		chatContainerName.className = "message-container-2";
-
-		chatContainerMessages = document.createElement("div");
-		chatContainerMessages.className = "message-container-3";
-
-		if (sender != null) {
-			var senderText = document.createElement("span");
-			senderText.className = "message-sender";
-			senderText.style.fontStyle = "italic";
-			senderText.innerHTML = sender;
-
-			chatContainerName.appendChild(senderText);
-		} else {
-			chatContainerMessages.style.paddingLeft = 0;
+	if (room != null && room != undefined) {
+		if (!window.isActive) {
+			unseenMessage = true;
+			document.title = title + "\u25CB";
 		}
 
-		chatContainerMain.appendChild(chatContainerName);
-		chatContainerMain.appendChild(chatContainerMessages);
-		page.appendChild(chatContainerMain);
-	}
+		if (sender != room.lastSender || color != room.lastColor) {
+			room.containers.main = document.createElement("div");
+			room.containers.main.className = "message-container-1";
 
-	var messageText = document.createElement("span");
-	messageText.className = "message-text";
+			$(room.containers.main).css({ backgroundColor: color });
 
-	if (centered) {
-		messageText.style.textAlign = "center";
-	}
+			room.containers.name = document.createElement("div");
+			room.containers.name.className = "message-container-2";
 
-	if (showDots) {
-		messageText.innerHTML = "<span style=\"opacity: 0.3\">&middot;&nbsp;</span>" + message;
+			room.containers.messages = document.createElement("div");
+			room.containers.messages.className = "message-container-3";
+
+			if (sender != null) {
+				var senderText = document.createElement("span");
+				senderText.className = "message-sender";
+				senderText.style.fontStyle = "italic";
+				senderText.innerHTML = sender;
+
+				room.containers.name.appendChild(senderText);
+			} else {
+				room.containers.messages.style.paddingLeft = 0;
+			}
+
+			room.containers.main.appendChild(room.containers.name);
+			room.containers.main.appendChild(room.containers.messages);
+			room.pageObject.page.appendChild(room.containers.main);
+		}
+
+		var messageText = document.createElement("span");
+		messageText.className = "message-text";
+
+		if (centered) {
+			messageText.style.textAlign = "center";
+		}
+
+		if (showDots) {
+			messageText.innerHTML = "<span style=\"opacity: 0.3\">&middot;&nbsp;</span>" + message;
+		} else {
+			messageText.innerHTML = message;
+		}
+
+		room.containers.messages.appendChild(messageText);
+		room.containers.messages.appendChild(document.createElement("br"));
+
+		room.pageObject.page.scrollTop = room.pageObject.page.scrollHeight;
+		room.lastSender = sender;
+		room.lastColor = color;
 	} else {
-		messageText.innerHTML = message;
+		console.log("Tried to show message in nonexistent room: " + roomName);
 	}
-
-	chatContainerMessages.appendChild(messageText);
-	chatContainerMessages.appendChild(document.createElement("br"));
-
-	page.scrollTop = page.scrollHeight;
-	lastSender = sender;
-	lastColor = color;
 }

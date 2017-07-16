@@ -1,15 +1,17 @@
+// TO DO: Clean up this file
+
 var tabs = [];
 var tabNames = {};
-var pages = [];
+var pages = []; // { id, page, name }
 var firstTabAnimationRegistered = false;
 var currentTabPage; // { id, page, name }
 
-function newTab(name, text) {
+function newPage(name, title) {
 	var isFirstTab = tabs.length == 0;
 	var tab = document.createElement("div");
 	tab.id = "tab-" + tabs.length;
 	tab.className = isFirstTab ? "tab--active" : "tab--inactive";
-	tab.innerHTML = text;
+	tab.innerHTML = title;
 
 	document.getElementById("tabs").appendChild(tab);
 
@@ -23,6 +25,7 @@ function newTab(name, text) {
 		tab.style.borderBottom = "30px solid rgb(" + color + ", " + color + ", " + color + ")";
 	}
 
+	// FIX THIS
 	tab.onclick = function() {
 		selectTab(tab.id);
 	}
@@ -30,17 +33,22 @@ function newTab(name, text) {
 	var newPage = document.createElement("div");
 	newPage.id = "page-" + tabs.length;
 	newPage.className = "chat-tab-page";
-	$(newPage).appendTo($("#chat"));
-	var newPageObject = { id: tab.id, name: name, page: newPage };
-	pages.push(newPageObject);
 
+	$(newPage).appendTo($("#chat"));
+
+	var newPageObject = { id: tab.id, name: name, page: newPage };
 	currentTabPage = newPageObject;
 
+	pages.push(newPageObject);
 	tabs.push(tab);
 	tabNames[tab.id] = name;
+
+	return newPageObject;
 }
 
 function selectTab(id) {
+	setChatRoom(tabNames[id]);
+
 	for (var i = 0; i < tabs.length; i++) {
 		var tab = tabs[i];
 
@@ -94,7 +102,6 @@ function getCurrentTabPage() {
 
 //// 
 
-
 function registerTabAnimations(dragNDrop) {
 	$(".tab--inactive").hover(function() {
 		$(this).css("border-bottom-color", "#808080");
@@ -121,14 +128,3 @@ function registerTabAnimations(dragNDrop) {
 		arrangeTabs();
 	}
 }
-
-$(function() { 
-	newTab("rei", "&#x96F6;&nbsp;<span class=\"tab-label\">(rei)</span>"); 
-	newTab("ichi", "&#x4E00;&nbsp;<span class=\"tab-label\">(ichi)</span>"); 
-	newTab("ni", "&#x4E8C;&nbsp;<span class=\"tab-label\">(ni)</span>"); 
-	newTab("san", "&#x4E09;&nbsp;<span class=\"tab-label\">(san)</span>");
-
-	selectTab("tab-0");
-
-	registerTabAnimations(true);
-});

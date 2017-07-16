@@ -127,30 +127,37 @@ function positionHandles(left) {
 
 var currentActiveUserCount = 0;
 
-function addActiveUserListing(username) {
-	var activeUserContainer = document.createElement("div");
-	activeUserContainer.className = "active-user-listing-container";
+function addActiveUserListing(roomName, username) {
+	if (username != undefined && roomExists(roomName)) {
+		var activeUserContainer = document.createElement("div");
+		activeUserContainer.className = "active-user-listing-container";
 
-	var activeUserText = document.createElement("span");
-	activeUserText.className = "active-user-listing";
-	activeUserText.innerHTML = username;
+		var activeUserText = document.createElement("span");
+		activeUserText.className = "active-user-listing";
+		activeUserText.innerHTML = username;
 
-	activeUserContainer.appendChild(activeUserText);
-	document.getElementById("sbe-active-users-content").appendChild(activeUserContainer);
+		activeUserContainer.appendChild(activeUserText);
+		document.getElementById("sbe-active-users-content").appendChild(activeUserContainer);
 
-	$("#sbe-active-users-content").find("div:even").css({ backgroundColor: "transparent" });
-	$("#sbe-active-users-content").find("div:odd").css({ backgroundColor: "var(--chat-bg-light)" });
+		$("#sbe-active-users-content").find("div:even").css({ backgroundColor: "transparent" });
+		$("#sbe-active-users-content").find("div:odd").css({ backgroundColor: "var(--chat-bg-light)" });
 
-	currentActiveUserCount++;
-	document.getElementById("sbe-active-users-title").innerHTML = "active users (" + currentActiveUserCount + ")";
+		currentActiveUserCount++;
+		document.getElementById("sbe-active-users-title").innerHTML = "active users (" + currentActiveUserCount + ")";
+	}
 }
 
-function removeActiveUserListing(username) {
+function removeActiveUserListing(roomName, username, disconnected) {
 	var list = document.getElementById("sbe-active-users-content");
 	var children = list.children;
 
 	for (var i = 0; i < children.length; i++) {
 		if ($(children[i]).find("span").first().text() == username) {
+
+			if (disconnected) {
+				displayServerMessage(roomName, username + " has disconnected."); // This should be moved into chat.js eventually
+			}
+
 			list.removeChild(children[i]);
 
 			$("#sbe-active-users-content").find("div:even").css({ backgroundColor: "transparent" });
@@ -162,6 +169,10 @@ function removeActiveUserListing(username) {
 			break;
 		}
 	}	
+}
+
+function clearActiveUserListings() {
+	$("#sbe-active-users-content").empty();
 }
 
 function fixActiveUserListingColors() {

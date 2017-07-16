@@ -12,20 +12,33 @@ $(function() {
 		}
 	});
 
-	socket.on("populate users", function(data) {
-		data.forEach(function(username) {
-			addActiveUserListing(username);
-		});
+	socket.on("user connected", function(username) {
+		
 	});
 
-	socket.on("user connected", function(data) {
-		displayServerMessage(getCurrentTabPage().name, data.message);
-		addActiveUserListing(data.username);
+	socket.on("user disconnected", function(username) {
+		handleUserDisconnect(username);
 	});
 
-	socket.on("user disconnected", function(data) {
-		displayServerMessage(getCurrentTabPage().name, data.message);
-		removeActiveUserListing(data.username);
+	socket.on("room join response", function(data) {
+		if (data.accepted) {
+			newChatRoom(data.room, data.title);
+			addActiveUser(data.room, data.username);
+
+			for (var i = 0; i < data.activeUsers.length; i++) {
+				addActiveUser(data.room, data.activeUsers[i]);;
+			}
+		}
+	});
+
+	socket.on("user join", function(data) {
+		displayServerMessage(data.room, data.username + " has joined the room.");
+		addActiveUser(data.room, data.username);
+	});
+
+	socket.on("user leave", function(data) {
+		displayServerMessage(data.room, data.username + " has left the room.");
+		removeActiveUser(data.room, data.username);
 	});
 
 	socket.on("chat in", function(data) {
@@ -45,9 +58,15 @@ function sendLoginRequest(username, password) {
 	});
 }
 
-function sendChatMessage(room, message) {
+function sendRoomJoinRequest(roomName) {
+	socket.emit("room join request", roomName);
+}
+
+function sendChatMessage(roomName, message) {
 	socket.emit("chat out", {
-		room: room,
+		room: roomName,
 		message: message
 	});
+
+	console.log("sendChatMessage " + roomName);
 }
