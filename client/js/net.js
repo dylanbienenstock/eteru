@@ -6,9 +6,26 @@ $(function() {
 	socket.on("login response", function(data) {
 		if (data.accepted) {
 			loginAccepted(data.message);
+			addActiveUserListing(data.username);
 		} else {
 			loginDenied(data.message);
 		}
+	});
+
+	socket.on("populate users", function(data) {
+		data.forEach(function(username) {
+			addActiveUserListing(username);
+		});
+	});
+
+	socket.on("user connected", function(data) {
+		displayServerMessage(getCurrentTabPage().name, data.message);
+		addActiveUserListing(data.username);
+	});
+
+	socket.on("user disconnected", function(data) {
+		displayServerMessage(getCurrentTabPage().name, data.message);
+		removeActiveUserListing(data.username);
 	});
 
 	socket.on("chat in", function(data) {

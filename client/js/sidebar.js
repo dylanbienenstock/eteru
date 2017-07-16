@@ -101,55 +101,7 @@ $(function() {
 
 	setTimeout(resizeTopics, 10);
 
-	// TEMPORARY
-
-	$("#right-sidebar-handle").click();
-
-	// Dragging / resizing functionality. Commented out because
-	// I'm losing my will to live.
-
-	/*
-
-	var mouseStartY;
-	var dragStartY;
-	var dragging = false;
-	var overflowHeight = $("body").height() - 16;
-
-	$("body").on("mousedown", "#left-sidebar-resize", function(event) {
-		mouseStartY = event.pageY;
-		dragging = true;
-	});
-
-	$("body").mouseup(function() {
-		dragging = false;
-	});
-
-	$(window).mousemove(function(event) {
-		if (dragging) {
-			var mouseOffsetY = event.pageY - $("#sbe-active-users").offset().top - 32 - mouseStartY;
-			var topicsHeight = $("#sbe-current-topics").outerHeight();
-			var topicsY = $("#sbe-current-topics").offset().top;
-			var newHeight = topicsHeight - ((topicsY + topicsHeight) - overflowHeight) - 8;
-
-			console.log(event.pageY + " ? " + ($("body").height() - 175 - 16));
-			if (event.pageY < $("body").height() - 175 - 16) {
-				$("#sbe-current-topics").css( { height: newHeight });
-				$("#sbe-active-users").css( { height: mouseStartY + mouseOffsetY});
-			}
-			else {
-				$("#sbe-current-topics").css( { height: "175px" });
-				$("#sbe-active-users").css( { height: mouseStartY + mouseOffsetY});
-			}
-		}
-	});
-
-	var topicsHeight = $("#sbe-current-topics").outerHeight();
-	var topicsY = $("#sbe-current-topics").offset().top;
-	var newHeight = topicsHeight - ((topicsY + topicsHeight) - overflowHeight) - 8;
-
-	$("#sbe-current-topics").css( { height: newHeight });
-
-	*/
+	$("#right-sidebar-handle").click(); // TEMPORARY
 });
 
 function resizeTopics() {
@@ -173,9 +125,57 @@ function positionHandles(left) {
 	}
 }
 
+var currentActiveUserCount = 0;
 
+function addActiveUserListing(username) {
+	var activeUserContainer = document.createElement("div");
+	activeUserContainer.className = "active-user-listing-container";
 
+	var activeUserText = document.createElement("span");
+	activeUserText.className = "active-user-listing";
+	activeUserText.innerHTML = username;
 
+	activeUserContainer.appendChild(activeUserText);
+	document.getElementById("sbe-active-users-content").appendChild(activeUserContainer);
+
+	$("#sbe-active-users-content").find("div:even").css({ backgroundColor: "transparent" });
+	$("#sbe-active-users-content").find("div:odd").css({ backgroundColor: "var(--chat-bg-light)" });
+
+	currentActiveUserCount++;
+	document.getElementById("sbe-active-users-title").innerHTML = "active users (" + currentActiveUserCount + ")";
+}
+
+function removeActiveUserListing(username) {
+	var list = document.getElementById("sbe-active-users-content");
+	var children = list.children;
+
+	for (var i = 0; i < children.length; i++) {
+		if ($(children[i]).find("span").first().text() == username) {
+			list.removeChild(children[i]);
+
+			$("#sbe-active-users-content").find("div:even").css({ backgroundColor: "transparent" });
+			$("#sbe-active-users-content").find("div:odd").css({ backgroundColor: "var(--chat-bg-light)" });
+
+			currentActiveUserCount--;
+			document.getElementById("sbe-active-users-title").innerHTML = "active users (" + currentActiveUserCount + ")";
+
+			break;
+		}
+	}	
+}
+
+function fixActiveUserListingColors() {
+	nextActiveUserLightGray = true;
+	var children = document.getElementById("sbe-active-users-content").children;
+
+	for (var i = 0; i < children.length; i++) {
+		if (nextActiveUserLightGray) {
+			children[i].style.backgroundColor = "var(--chat-bg-light)";
+		}
+
+		nextActiveUserLightGray = !nextActiveUserLightGray;
+	}
+}
 
 
 

@@ -25,27 +25,29 @@ http.listen(8080, function() {
 --------------------------------------------
 
 -> "login request" - { string: username, string: password } --- passwords not implemented
-<- "login response" - { bool: accepted, string: message }
+<- "login response" - { bool: accepted, string: username, string: message }
+<- "populate users" [ string: username ]
 <- "user connected" - { string: username, string: message }
 <- "user disconnected" - { string: username, string: message }
 -> "chat out" - { string: room, string: message } --- "out" is relative to client, not server
 <- "chat in" - { string: room, string: username, number: hue, string: message } --- "username" refers to the sender, "hue" is temporary
 <- "chat server" { string: color, string: message } --- Global server message
-
 */
 
 var usernameList = {} // Key: socket.id, Value: username
 var usernameValidator = /^([A-Za-z0-9\-]+)$/g;
-var huehuehue = {} // DEBUG
 
 function onConnect(socket) {
 	socket.on("disconnect", function() {
 		if (usernameList[socket.id] != undefined) {
-			console.log("----- DISCONNECT: " + usernameList[socket.id]); // DEBUG
-			socket.broadcast.emit("chat server", { message: "--- User disconnected: " + usernameList[socket.id] });
+			console.log("User disconnected: " + usernameList[socket.id]); // DEBUG
+			
+			socket.broadcast.emit("user disconnected", {
+				username: usernameList[socket.id],
+				message: "User disconnected: " + usernameList[socket.id]
+			});
 		}
 
-		delete huehuehue[usernameList[socket.id]]; // DEBUG
 		delete usernameList[socket.id];
 	});
 
@@ -54,30 +56,42 @@ function onConnect(socket) {
 
 		socket.emit("login response", {
 			accepted: loginResponse.accepted,
+			username: data.username,
 			message: loginResponse.message
 		});
 
+		//////////////////////////////////////////
+
 		if (loginResponse.accepted) {
+			var usernames = [];
+
+			for (var username in usernameList) {
+				if (usernameList.hasOwnProperty(username)) {
+					usernames.push(usernameList[username]);
+				}
+			}
+
+			socket.emit("populate users", usernames);
+
+		//////////////////////////////////////////
+
 			usernameList[socket.id] = data.username;
 
-			// socket.broadcast.emit("user connected", {
-			// 	username: data.username,
-			// 	message: "User connected: " + data.username
-			// });
-
-			socket.broadcast.emit("chat server", { message: "+++ User connected: " + data.username });
+			socket.broadcast.emit("user connected", {
+				username: data.username,
+				message: "User connected: " + data.username
+			});
 		}
 	});
 
 	socket.on("chat out", function(data) {
-		console.log("(" + data.room + ") " + usernameList[socket] + ": " + data.message);
+		console.log("(" + data.room + ") " + usernameList[socket.id] + ": " + data.message);
 
 		if (data.message.length > 0) {
 			io.emit("chat in", {
 				room: data.room,
 				username: usernameList[socket.id],
-				message: data.message,
-				hue: huehuehue[usernameList[socket.id]] // DEBUG
+				message: data.message
 			});
 		}
 	});
@@ -106,8 +120,7 @@ function processLoginRequest(data) {
 		loginResponse.message = "That username is currently taken.";
 	}
 
-	console.log("+++++ CONNECT: " + data.username); // DEBUG
-	huehuehue[data.username] = Math.random() * 359; // DEBUG
+	console.log("User connected: " + data.username); // DEBUG
 
 	return loginResponse;
 }
