@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+
+<html>
+	<body>
+		<style>
+
+		#home-title {
+			color: #A0A0A0;
+			font-size: 32px;
+			font-family: "Source Code Pro", monospace;
+		}
+
+		.home-span {
+			margin-right: 8px;
+			color: #A0A0A0;
+			font-size: 16px;
+			font-family: "Source Code Pro", monospace;
+		}
+
+		.join-button {
+			background-color: #A0A0A0;
+			color: var(--chat-bg);
+			font-size: 16px;
+			font-family: "Source Code Pro", monospace;
+		}
+
+		.join-button:focus {
+			outline: none;
+		}
+
+		</style>
+
+		<div style="margin-left: 16px; margin-top: 16px;">
+			<span id="home-title">welcome</span> <br />
+
+			<div style="margin-top: 24px">
+				<span class="home-span">join a room:</span>
+				<button class="join-button" onclick="sendRoomJoinRequest('rei');">rei</button>
+				<button class="join-button" onclick="sendRoomJoinRequest('ichi');">ichi</button>
+				<button class="join-button" onclick="sendRoomJoinRequest('ni');">ni</button>
+				<button class="join-button" onclick="sendRoomJoinRequest('san');">san</button>
+			</div>
+		</div>
+	</body>
+</html>

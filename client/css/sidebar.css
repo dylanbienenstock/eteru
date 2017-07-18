@@ -57,6 +57,7 @@
 
 .sidebar-element-container-left {
 	width: 200px;
+	overflow: hidden;
 }
 
 .sidebar-element-title {
@@ -79,14 +80,6 @@
 	border-radius: 8px;
 }
 
-.active-user-name {
-	font-size: 14px;
-	font-family: "Source Code Pro", monospace;
-	white-space: nowrap;
-  	overflow: hidden;
-  	text-overflow: ellipsis;
-}
-
 #left-sidebar-content {
 	position: absolute;
 	top: 0;
@@ -103,16 +96,20 @@
 	cursor: ns-resize;
 }
 
-#sbe-active-users {
-	padding-left: 0;
+#sbe-active-users, #sbe-current-topics {
+	padding: 0 0 0 0;
+	overflow: hidden;
 }
 
-.active-user-listing-container {
+#sbe-active-users-content, #sbe-current-topics-content {
+	overflow: hidden;
+}
+
+.listing-container {
 	padding: 4px 8px 4px 8px;
 }
 
-
-.active-user-listing {
+.listing {
 	font-size: 12px;
 	font-family: "Source Code Pro", monospace;
 }

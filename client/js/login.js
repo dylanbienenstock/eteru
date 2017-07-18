@@ -4,10 +4,10 @@ var loginMessageFadeTimeout;
 $(function() {
 	document.getElementById("input-username").focus();
 
-	centerLogin();
+	centerLoginPrompt();
 
 	$(window).resize(function() {
-		centerLogin();
+		centerLoginPrompt();
 	});
 
 	$("#login").on("keyup", function (event) {
@@ -23,7 +23,7 @@ $(function() {
 	});
 });
 
-function centerLogin() {
+function centerLoginPrompt() {
 	$("#login").offset({
 		left: $(window).width() / 2 - $("#login").outerWidth() / 2, 
 		top: $(window).height() / 2 - $("#login").outerHeight() / 2
@@ -53,18 +53,18 @@ function loginAccepted(message) {
 	$("#label-username").stop().css({ color: "#00FF00" })
 
 	centerLoginMessage();
-	clearTimeout(loginMessageFadeTimeout);
+	clearTimeout(messageFadeTimeout);
 
 	if (FAST_LOGIN_ANIMATION) { // 1.6 seconds
 		setTimeout(function() {
-			$("#veil").fadeOut(600);
+			$("#login-veil").fadeOut(600);
 		}, 1000);
 	} else { 			  		// 2.9 seconds
 		setTimeout(function() {
 			$("#login-message").fadeOut(600);
 			$("#login").fadeOut(600, function() {
 				setTimeout(function() {
-					$("#veil").fadeOut(600);
+					$("#login-veil").fadeOut(600);
 				}, 100);
 			});
 		}, 1000);
@@ -85,9 +85,9 @@ function loginDenied(message) {
 	$("#input-username").stop().css({ color: "red", borderColor: "red" });
 	$("#label-username").stop().css({ color: "red" })
 
-	clearTimeout(loginMessageFadeTimeout);
+	clearTimeout(messageFadeTimeout);
 
-	loginMessageFadeTimeout = setTimeout(function() {
+	messageFadeTimeout = setTimeout(function() {
 		$("#login-message").stop().animate({ opacity: 0 }, 500);
 		$("#input-username").stop().animate({ color: "#808080", borderColor: "#808080" }, 500);
 		$("#label-username").stop().animate({ color: "#808080" }, 500);

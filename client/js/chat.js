@@ -9,14 +9,19 @@ var nextMessageLightGray = true;
 
 var currentRoomName;
 var chatRooms = {};
-var chatRoomNames = []; // new
+var chatRoomNames = [];
 
 function newChatRoom(roomName, title) {
 	var newChatRoom = {
 		name: roomName,
 		pageObject: newPage(roomName, title),
 		activeUsers: [],
+		topics: {},
+		topicNames: [],
+		topicMuted: {},
+		currentTopicName: null,
 		lastSender: null,
+		lastTopic: null,
 		lastColor: null,
 		containers: {
 			main: null,
@@ -30,16 +35,104 @@ function newChatRoom(roomName, title) {
 	arrangeTabsSkipTransition();
 }
 
-function setChatRoom(roomName) {
+function newTopic(roomName, starterName, topicName, description, hue) {
 	var room = chatRooms[roomName];
 
 	if (room != null && room != undefined) {
+		var newTopic = {
+			roomName: roomName,
+			starterName: starterName,
+			name: topicName, 
+			description: description,
+			hue: hue
+		};
+
+		room.topics[topicName] = newTopic;
+		room.topicNames.push(topicName);
+
+		if (roomName == currentRoomName) {
+			addTopicListing(roomName, topicName, hue);
+		}
+	}
+}
+
+function setTopic(roomName, topicName) {
+	var room = chatRooms[roomName];
+
+	if (room != null && room != undefined) {
+		room.currentTopicName = topicName;
+
+		if (topicName == null) {
+			$("#topic-display").html("no&nbsp;topic:");
+			$("#topic-dot").html("");
+			$("#input").css({ backgroundColor: "#202020" });
+		} else {
+			$("#topic-display").text(topicName + ":");
+			$("#input").css({ backgroundColor: chatColorFromHue(room.topics[topicName].hue || 0) });
+			$("#topic-dot").css({ color: chatColorFromHue(room.topics[topicName].hue || 0, true) });
+			document.getElementById("topic-dot").innerHTML = "&#9679;&nbsp;";
+		}
+	}
+}
+
+function toggleTopicMute(roomName, topicName) { // true = muted
+	var room = chatRooms[roomName];
+
+	if (room != null && room != undefined) {	
+		var topicIsMuted = room.topicMuted[topicName];
+		
+		if (topicIsMuted) {
+			room.topicMuted[topicName] = false;
+
+			return false;
+		} else {
+			room.topicMuted[topicName] = true;
+
+			return true;
+		}
+	}
+
+	return true;
+}
+
+function setTopicMuted(roomName, topicName, muted) {
+	var room = chatRooms[roomName];
+
+	if (room != null && room != undefined) {	
+		room.topicMuted[topicName] = muted;
+	}
+}
+
+function isTopicMuted(roomName, topicName) {
+	var room = chatRooms[roomName];
+
+	if (room != null && room != undefined) {	
+		var topicIsMuted = room.topicMuted[topicName];
+
+		return topicIsMuted;
+	}
+}
+
+function setChatRoom(roomName) {
+	var room = chatRooms[roomName];
+
+	clearActiveUserListings();
+	clearTopicListings();
+
+	if (room != null && room != undefined) {
 		currentRoomName = roomName;
-		clearActiveUserListings();
 
 		for (var i = 0; i < room.activeUsers.length; i++) {
 			addActiveUserListing(roomName, room.activeUsers[i]);
 		}
+
+		for (var i = 0; i < room.topicNames.length; i++) {
+			var topic = room.topics[room.topicNames[i]];
+
+			addTopicListing(topic.roomName, topic.name, topic.hue);
+		}
+	} else {
+		currentRoomName = null;
 	}
 }
 
@@ -61,7 +154,7 @@ $(function() {
 
 	$("#input-text").on("keyup", function (event) {
 	    if (event.keyCode == 13) {
-	    	sendChatMessage(currentRoomName, $("#input-text").val());
+	    	sendChatMessage(currentRoomName, chatRooms[currentRoomName].currentTopicName, $("#input-text").val());
 	   		$("#input-text").val("");
 	    }
 	});
@@ -76,8 +169,6 @@ function addActiveUser(roomName, username) {
 		if (room.name == currentRoomName) {
 			addActiveUserListing(roomName, username);
 		}
-
-		console.log(username + " joined " + roomName);
 	}
 }
 
@@ -85,7 +176,11 @@ function removeActiveUser(roomName, username) {
 	var room = chatRooms[roomName];
 
 	if (room != null && room != undefined) {
-		delete chatRooms[roomName].activeUsers[username];
+		var i = room.activeUsers.indexOf(username);
+
+		if (i != -1) {
+			room.activeUsers.splice(i, 1);
+		}
 
 		removeActiveUserListing(roomName, username, true);
 	}
@@ -103,39 +198,60 @@ function roomExists(roomName) {
 	return room != null && room != undefined;
 }
 
-function displayChatMessage(roomName, sender, message) {
-	console.log(roomName + " " + sender + " " + message);
-
-	var room = chatRooms[roomName];
-
-	if (sender != room.lastSender) {
-		nextMessageLightGray = !nextMessageLightGray;
-	}
-
-	if (nextMessageLightGray) {
-		displayChatMessageRaw(roomName, sender, "var(--chat-bg-light)", false, true, message);
-	} else {
-		displayChatMessageRaw(roomName, sender, "transparent", false, true, message);
-	}
+function getCurrentRoomName() {
+	return currentRoomName;
 }
 
-function displayColoredChatMessage(roomName, sender, hue, message) {
-	var color = $.Color({ 
+function getActiveUserCount(roomName) {
+	var room = chatRooms[roomName];
+
+	if (room != null && room != undefined)
+	{
+		return room.activeUsers.length;
+	}
+
+	return 0;
+}
+
+function getTopicCount(roomName) {
+	var room = chatRooms[roomName];
+
+	if (room != null && room != undefined)
+	{
+		return room.topicNames.length;
+	}
+
+	return 0;
+}
+
+function chatColorFromHue(hue, fullBright) {
+	if (fullBright) {
+		return $.Color({ 
 					hue: hue,
-					saturation: 0.375,
-					lightness: 0.15,
+					saturation: 1,
+					lightness: 0.5,
 					alpha: 1.0
 				});
+	}
 
-	displayChatMessageRaw(roomName, sender, color, false, true, message);
+	return $.Color({ 
+				hue: hue,
+				saturation: 0.375,
+				lightness: 0.15,
+				alpha: 1.0
+			});
+}
+
+function displayChatMessage(roomName, topicName, sender, message) {
+	displayChatMessageRaw(roomName, topicName, sender, null, false, true, message);
 }
 
 function displayServerMessage(roomName, message) {
-	displayChatMessageRaw(roomName, null, "#080808", true, false, message);
+	displayChatMessageRaw(roomName, null, null, "#080808", true, false, message);
 }
 
-// centering not implemented
-function displayChatMessageRaw(roomName, sender, color, centered, showDots, message) {
+// TO DO: work on the order of these parameters
+function displayChatMessageRaw(roomName, topicName, sender, color, centered, showDots, message) {
 	var room = chatRooms[roomName];
 
 	if (room != null && room != undefined) {
@@ -144,7 +260,11 @@ function displayChatMessageRaw(roomName, sender, color, centered, showDots, mess
 			document.title = title + "\u25CB";
 		}
 
-		if (sender != room.lastSender || color != room.lastColor) {
+		if (topicName != null && room.topics[topicName] != null) {
+			color = chatColorFromHue(room.topics[topicName].hue).toHexString();
+		}
+
+		if (sender != room.lastSender || color != room.lastColor || topicName != room.lastTopic) {
 			room.containers.main = document.createElement("div");
 			room.containers.main.className = "message-container-1";
 
@@ -152,6 +272,7 @@ function displayChatMessageRaw(roomName, sender, color, centered, showDots, mess
 
 			room.containers.name = document.createElement("div");
 			room.containers.name.className = "message-container-2";
+			room.containers.name.style.textAlign = "right";
 
 			room.containers.messages = document.createElement("div");
 			room.containers.messages.className = "message-container-3";
@@ -163,6 +284,22 @@ function displayChatMessageRaw(roomName, sender, color, centered, showDots, mess
 				senderText.innerHTML = sender;
 
 				room.containers.name.appendChild(senderText);
+
+				if (topicName != null && topicName != room.lastTopic) {
+					room.containers.name.appendChild(document.createElement("br"));
+
+					var topicDot = document.createElement("span");
+					topicDot.className = "message-topic";
+					topicDot.style.color = chatColorFromHue(room.topics[topicName].hue, true).toHexString();
+					topicDot.innerHTML = "&#9679;&nbsp;";
+
+					var topicText = document.createElement("span");
+					topicText.className = "message-topic";
+					topicText.innerHTML = topicName;
+
+					room.containers.name.appendChild(topicDot);
+					room.containers.name.appendChild(topicText);
+				}
 			} else {
 				room.containers.messages.style.paddingLeft = 0;
 			}
@@ -191,6 +328,7 @@ function displayChatMessageRaw(roomName, sender, color, centered, showDots, mess
 		room.pageObject.page.scrollTop = room.pageObject.page.scrollHeight;
 		room.lastSender = sender;
 		room.lastColor = color;
+		room.lastTopic = topicName;
 	} else {
 		console.log("Tried to show message in nonexistent room: " + roomName);
 	}

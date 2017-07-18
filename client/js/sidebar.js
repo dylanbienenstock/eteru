@@ -108,9 +108,9 @@ function resizeTopics() {
 	var overflowHeight = $("body").height() - 16;
 	var topicsHeight = $("#sbe-current-topics").outerHeight();
 	var topicsY = $("#sbe-current-topics").offset().top;
-	var newHeight = topicsHeight - ((topicsY + topicsHeight) - overflowHeight) - 8;
+	var newHeight = topicsHeight - ((topicsY + topicsHeight) - overflowHeight) + 8;
 
-	$("#sbe-current-topics").css( { height: newHeight });
+	$("#sbe-current-topics").css({ height: newHeight });
 }
 
 function positionHandles(left) {
@@ -125,15 +125,13 @@ function positionHandles(left) {
 	}
 }
 
-var currentActiveUserCount = 0;
-
 function addActiveUserListing(roomName, username) {
 	if (username != undefined && roomExists(roomName)) {
 		var activeUserContainer = document.createElement("div");
-		activeUserContainer.className = "active-user-listing-container";
+		activeUserContainer.className = "listing-container";
 
 		var activeUserText = document.createElement("span");
-		activeUserText.className = "active-user-listing";
+		activeUserText.className = "listing";
 		activeUserText.innerHTML = username;
 
 		activeUserContainer.appendChild(activeUserText);
@@ -142,8 +140,7 @@ function addActiveUserListing(roomName, username) {
 		$("#sbe-active-users-content").find("div:even").css({ backgroundColor: "transparent" });
 		$("#sbe-active-users-content").find("div:odd").css({ backgroundColor: "var(--chat-bg-light)" });
 
-		currentActiveUserCount++;
-		document.getElementById("sbe-active-users-title").innerHTML = "active users (" + currentActiveUserCount + ")";
+		document.getElementById("sbe-active-users-title").innerHTML = "active users (" + getActiveUserCount(roomName) + ")";
 	}
 }
 
@@ -154,8 +151,8 @@ function removeActiveUserListing(roomName, username, disconnected) {
 	for (var i = 0; i < children.length; i++) {
 		if ($(children[i]).find("span").first().text() == username) {
 
-			if (disconnected) {
-				displayServerMessage(roomName, username + " has disconnected."); // This should be moved into chat.js eventually
+			if (disconnected) { // TO DO: This should be moved into chat.js eventually
+				displayServerMessage(roomName, username + " has disconnected."); 
 			}
 
 			list.removeChild(children[i]);
@@ -163,8 +160,7 @@ function removeActiveUserListing(roomName, username, disconnected) {
 			$("#sbe-active-users-content").find("div:even").css({ backgroundColor: "transparent" });
 			$("#sbe-active-users-content").find("div:odd").css({ backgroundColor: "var(--chat-bg-light)" });
 
-			currentActiveUserCount--;
-			document.getElementById("sbe-active-users-title").innerHTML = "active users (" + currentActiveUserCount + ")";
+			document.getElementById("sbe-active-users-title").innerHTML = "active users (" + getActiveUserCount(roomName) + ")";
 
 			break;
 		}
@@ -173,6 +169,12 @@ function removeActiveUserListing(roomName, username, disconnected) {
 
 function clearActiveUserListings() {
 	$("#sbe-active-users-content").empty();
+	document.getElementById("sbe-active-users-title").innerHTML = "active users (n/a)";
+}
+
+function clearTopicListings() {
+	$("#sbe-current-topics-content").empty();
+	document.getElementById("sbe-current-topics-title").innerHTML = "current topics (n/a)";	
 }
 
 function fixActiveUserListingColors() {
@@ -185,5 +187,68 @@ function fixActiveUserListingColors() {
 		}
 
 		nextActiveUserLightGray = !nextActiveUserLightGray;
+	}
+}
+
+function addTopicListing(roomName, topicName, hue) { // TO DO: Implement username & description
+	if (roomExists(roomName)) {
+		var color = (topicName == null ? "#252525" : chatColorFromHue(hue).toHexString());
+		var color2 = (topicName == null ? "#808080" : chatColorFromHue(hue, true).toHexString());
+
+		var topicContainer = document.createElement("div");
+		topicContainer.className = "listing-container";
+		topicContainer.style.backgroundColor = color;
+		topicContainer.style.cursor = "pointer";
+
+		var topicToggle = document.createElement("span");
+		topicToggle.className = "listing";
+		topicToggle.style.color = color2;
+		topicToggle.innerHTML = "&#9679;&nbsp;";
+
+		var topicText = document.createElement("span");
+		topicText.className = "listing";
+		topicText.innerHTML = topicName;
+
+		if (topicName == null) {
+			topicText.style.fontStyle = "italic";
+			topicText.innerHTML = "(none)";
+		}
+
+		$(topicContainer).hover(function() {
+			$(topicContainer).stop().animate({ backgroundColor: $.Color(color).lightness("+=0.075") }, 150);
+		}, function() {
+			$(topicContainer).stop().animate({ backgroundColor: color }, 150);
+		});
+
+		$(topicContainer).on("click", function(event) {
+			var clickX = event.pageX - $(topicContainer).offset().left;
+
+			if (clickX <= 22) {
+				var muted = isTopicMuted(roomName, topicName);
+
+				if (muted) {
+					topicToggle.innerHTML = "&#9679;&nbsp;";
+					displayServerMessage(roomName, "Unmuted topic: " + topicName)
+
+					setTopicMuted(roomName, topicName, false);
+				} else {
+					topicToggle.innerHTML = "&#9675;&nbsp;";
+					displayServerMessage(roomName, "Muted topic: " + topicName)
+
+					setTopicMuted(roomName, topicName, true);
+				}
+			}
+			else {
+				topicToggle.innerHTML = "&#9679;&nbsp;";
+				setTopicMuted(roomName, topicName, false);
+				setTopic(roomName, topicName);
+			}
+		});
+
+		topicContainer.appendChild(topicToggle);
+		topicContainer.appendChild(topicText);
+		document.getElementById("sbe-current-topics-content").appendChild(topicContainer);
+
+		document.getElementById("sbe-current-topics-title").innerHTML = "current topics (" + getTopicCount(roomName) + ")";
 	}
 }

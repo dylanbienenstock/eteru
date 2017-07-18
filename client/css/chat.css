@@ -54,6 +54,12 @@
 	font-family: "Source Code Pro", monospace;
 }
 
+.message-topic {
+	color: #A0A0A0;
+	font-size: 12px;
+	font-family: "Source Code Pro", monospace;
+}
+
 .message-text {
 	color: #A0A0A0;
 	font-size: 14px;

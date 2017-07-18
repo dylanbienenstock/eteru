@@ -6,10 +6,10 @@
 		<meta charset="utf-8">
 
 		<link rel="stylesheet" type="text/css" href="css/styles.css">
-		<link rel="stylesheet" type="text/css" href="css/login.css">
 		<link rel="stylesheet" type="text/css" href="css/sidebar.css">
 		<link rel="stylesheet" type="text/css" href="css/chat.css">
 		<link rel="stylesheet" type="text/css" href="css/buttons.css">
+		<link rel="stylesheet" type="text/css" href="css/prompts.css">
 
 		<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet">
 
@@ -26,6 +26,7 @@
 		<script src="js/sidebar.js"></script>
 		<script src="js/login.js"></script>
 		<script src="js/chat.js"></script>
+		<script src="js/topic-prompt.js"></script>
 		<script src="js/setup.js"></script>
 
 		<title>ethereal</title>
@@ -42,15 +43,16 @@
 					random - this room is for discussions of any topic :^) <br />
 					
 					<button id="sbe-room-info-leave" class="compact red noselect" style="margin-top: 8px;">leave</button>
-					<button id="sbe-room-info-rules" class="compact purple noselect" style="margin-top: 8px;">rules</button>
+					<button id="sbe-room-info-rules" class="compact green noselect" style="margin-top: 8px;">rules</button>
+					<button id="sbe-room-info-leave" onclick="openNewTopicPrompt();" class="compact blue noselect" style="margin-top: 8px;">new topic</button>
 				</div>
 			</div>
 
 			<div class="sidebar-element-container-left" style="margin-top: 24px;">
 				<span id="sbe-active-users-title" class="sidebar-element-title">active users (n/a)</span>
 
-				<div id="sbe-active-users" class="sidebar-element" style="min-height: 175px; max-height: 175px;">
-					<div id="sbe-active-users-content" style="font: inherit; overflow-y: scroll; height: 100%; min-height: inherit; max-height: inherit;">
+				<div id="sbe-active-users" class="sidebar-element" style="min-height: 200px; max-height: 200px;">
+					<div id="sbe-active-users-content" style="font: inherit; /*overflow-y: scroll;*/ height: 100%; min-height: inherit; max-height: inherit;">
 					</div>
 				</div>
 			</div>
@@ -58,10 +60,10 @@
 			<div id="left-sidebar-resize"></div>
 
 			<div id="sbe-current-topics-container" class="sidebar-element-container-left" style="margin-top: 0; flex: 0 1 100%">
-				<span class="sidebar-element-title">current topics (n/a)</span>
+				<span id="sbe-current-topics-title" class="sidebar-element-title">current topics (n/a)</span>
 
 				<div id="sbe-current-topics" class="sidebar-element">
-					<div id="sbe-current-topics-content" style="font: inherit; overflow-y: scroll; height: 100%;">
+					<div id="sbe-current-topics-content" style="font: inherit; /*overflow-y: scroll;*/ height: 100%;">
 					</div>
 				</div>
 			</div>
@@ -86,7 +88,7 @@
 				</div>
 
 				<div id="input">
-					<span id="name-display">Chat:</span><input type="text" id="input-text">
+					<span id="topic-dot"></span><span id="topic-display">no&nbsp;topic:</span><input type="text" id="input-text"  autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="1000">
 				</div>
 			</div>
 
@@ -94,20 +96,37 @@
 			
 			</div>
 
-			<div id="veil" class="noselect">
-				<div id="login">
+			<div id="login-veil" class="veil noselect">
+				<div id="login" class="prompt">
 					<div style="line-height: 16px;">
-						<span class="login-title"> <span style="all: inherit;">login</span> <span style="all: inherit; margin-left: 24px; display: none;">signup</span> </span>
+						<span class="prompt-title"> <span style="all: inherit;">login</span> <span style="all: inherit; margin-left: 24px; display: none;">signup</span> </span>
 						<span style="float: right; font-size: 16px;">&#12456;&#12540;&#12486;&#12523; <span style="font-style: italic; font-size: 16px;">(ethereal)</span> </span>
 					</div>
 
 					<div style="clear: both;"></div>
 
-					<div style="margin-top: 16px;"><span id="label-username" class="login-label" >username</span> <input id="input-username" type="text" class="login-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="24" autofocus></div>
-					<div style="margin-top: 16px; opacity: 0.2;"> <span id="label-password" class="login-label" autocomplete="off">password</span> <input id="input-password" type="password" class="login-input"></div>
+					<div style="margin-top: 16px;"><span id="label-username" class="prompt-label">username</span> <input id="input-username" type="text" class="prompt-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="24" autofocus></div>
+					<div style="margin-top: 16px; opacity: 0.2;"> <span id="label-password" class="prompt-label" autocomplete="off">password</span> <input id="input-password" type="password" class="prompt-input"></div>
 				</div>
 
-				<span id="login-message" class="noselect">|</span>
+				<span id="login-message" class="prompt-message noselect">|</span>
+			</div>
+
+			<div id="new-topic-veil" class="veil noselect" style="background-color: rgba(0, 0, 0, 0.5); display: none;">
+				<div id="new-topic" class="prompt">
+					<div style="line-height: 16px;">
+						<span class="prompt-title"> <span style="all: inherit;">new topic</span> <span style="all: inherit; margin-left: 24px; display: none;">signup</span> </span>
+					</div>
+
+					<div style="clear: both;"></div>
+
+					<div style="margin-top: 16px;"><span id="label-new-topic-name" class="prompt-label" >name</span> <input id="input-new-topic-name" type="text" class="prompt-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="24" autofocus></div>
+					<div style="margin-top: 16px;"><span id="label-new-topic-description" class="prompt-label" >desc</span> <input id="input-new-topic-description" type="text" class="prompt-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="24" autofocus></div>
+
+					<canvas id="hue-canvas" width="245" height="12" style="margin-top: 20px;"></canvas>
+				</div>
+
+				<span id="new-topic-message" class="prompt-message noselect">|</span>
 			</div>
 		</div>
 	</body>

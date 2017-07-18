@@ -3,10 +3,12 @@ var app = express();
 var http = require("http").Server(app);
 var io = require("socket.io")(http); 
 var validator = require("validator");
+//var favicon = require("serve-favicon");
 
 //app.set("port", (process.env.PORT || 8080));
 
 app.use(express.static("./client"));
+//app.use(favicon("./client/favicon.ico"));
 
 app.get("/", function(req, res) {
 	res.sendFile("./client/index.html");
@@ -14,8 +16,8 @@ app.get("/", function(req, res) {
 
 io.on("connection", onConnect);
 
-http.listen(3000, function() {
-  console.log("Server listening on port 3000.");
+http.listen(8080, function() {
+  console.log("Server listening on port 8080.");
 });
 
 /*
@@ -29,17 +31,21 @@ TO DO: Reformat this to { name: <type> } instead of { type: name }
 <- "login response" - { bool: accepted, string: username, string: message }
 
 -> "room join request" - string: room
-<- "room join response" - { bool: accepted, string: username, string: room, string: title, string[]: activeUsers  }
+<- "room join response" - { bool: accepted, string: username, string: room, string: title, string[]: activeUsers, topic[]: topics  }
 -> "room leave" - string: room
 
-<- "user connected" - string: username
+<- "user connected" - string: username --- connected/disconnected refers to a user joining/leaving the network
 <- "user disconnected" - string: username
-<- "user join" - { string: username, string: room }
+<- "user join" - { string: username, string: room } --- join/leave refers to a user joining/leaving a specific room
 <- "user leave" - { string: username, string: room }
 
--> "chat out" - { string: room, string: message } --- "out" is relative to client, not server
-<- "chat in" - { string: room, string: username, number: hue, string: message } --- "username" refers to the sender, "hue" is temporary
-<- "chat server" { string: color, string: message } --- Global server message
+-> "chat out" - { string: room, string: topic, string: message } --- "out" is relative to client, not server
+<- "chat in" - { string: room, string: topic, string: username, string: message } --- "username" refers to the sender
+<- "chat server" - { string: color, string: message } --- Global server message
+
+-> "topic create request" - { string: room, string: name, string: description, number: hue }
+<- "topic create response" - { bool: accepted, string: username, string: room, string: topic, string: description, string: hue, string: message }
+<- "topic create" - { string: username, string: room, string: description, string: hue }
 
 */
 
@@ -59,11 +65,26 @@ var chatRoomNames = [];
 function newChatRoom(roomName, title) {
 	var newChatRoom = {
 		name: roomName,
-		activeUsers: []
+		activeUsers: [],
+		topics: []
 	};
 
 	chatRooms[roomName] = newChatRoom;
 	chatRoomNames.push(roomName);
+
+	newTopic(roomName, null, null, null, null);
+}
+
+function newTopic(roomName, starterName, topicName, description, hue) {
+	var newTopic = {
+		room: roomName,
+		starter: starterName,
+		name: topicName,
+		description: description,
+		hue: hue
+	};
+
+	chatRooms[roomName].topics.push(newTopic);
 }
 
 newChatRoom("rei", chatRoomTitles["rei"]);
@@ -73,33 +94,21 @@ newChatRoom("san", chatRoomTitles["san"]);
 
 function onConnect(socket) {
 	socket.on("disconnect", function() {
-		//console.log(1);
 		if (usernameList[socket.id] != undefined) {
 			console.log("User disconnected: " + usernameList[socket.id]); // DEBUG
 
 			for (var i = 0; i < chatRoomNames.length; i++) {
-				//console.log(i + "/" + 2);
 				var room = chatRooms[chatRoomNames[i]];
-				//console.log(i + "/" + 3);
 				var i2 = room.activeUsers.indexOf(usernameList[socket.id]);
-				//console.log(i + "/" + 4);
 
 				if (1 != -1) {
-					//console.log(i + "/" + 5);
 					room.activeUsers.splice(i2, 1);
-					//console.log(i + "/" + 6);
 				}
-
-				//console.log(i + "/" + 7);
 			}		
 
-			//console.log(8);
 			socket.broadcast.emit("user disconnected", usernameList[socket.id]);
-			//console.log(9);
 		}
-		//console.log(10);
 		delete usernameList[socket.id];
-		//console.log(11);
 	});
 
 	socket.on("login request", function(data) {
@@ -115,7 +124,7 @@ function onConnect(socket) {
 
 		if (loginResponse.accepted) {
 			usernameList[socket.id] = data.username;
-			socket.broadcast.emit("user connected", data.username);
+			socket.emit("user connected", data.username);
 			console.log("User connected: " + data.username); // DEBUG
 		}
 	});
@@ -129,15 +138,17 @@ function onConnect(socket) {
 				username: usernameList[socket.id],
 				room: roomName,
 				title: chatRoomTitles[roomName],
-				activeUsers: room.activeUsers
+				activeUsers: room.activeUsers,
+				topics: room.topics
 			});
 
-			socket.broadcast.emit("user join", {
+			socket.to(roomName).emit("user join", {
 				username: usernameList[socket.id],
 				room: roomName
 			});
 
 			room.activeUsers.push(usernameList[socket.id]);
+			socket.join(roomName);
 
 			console.log(usernameList[socket.id] + " joined " + roomName + "."); // DEBUG
 		} else {
@@ -150,14 +161,43 @@ function onConnect(socket) {
 	//socket.on("room leave")
 
 	socket.on("chat out", function(data) {
-		console.log("(" + data.room + ") " + usernameList[socket.id] + ": " + data.message);
+		if (data.room != null && data.room != undefined && chatRoomNames.includes(data.room)) {
+			console.log("(" + data.room + ") " + usernameList[socket.id] + ": " + data.message);
 
-		if (data.message.length > 0) {
-			io.emit("chat in", {
-				room: data.room,
+			if (data.message.length > 0) {
+				io.to(data.room).emit("chat in", {
+					room: data.room,
+					topic: data.topic,
+					username: usernameList[socket.id],
+					message: data.message
+				});
+			}
+		}
+	});
+	
+	socket.on("topic create request", function(data) {
+		var topicCreateResponse = processTopicCreateRequest(data);
+
+		socket.emit("topic create response", {
+			accepted: topicCreateResponse.accepted,
+			username: usernameList[socket.id],
+			room: data.room, 
+			topic: data.topic,
+			description: data.description,
+			hue: data.hue,
+			message: topicCreateResponse.message
+		});
+
+		if (topicCreateResponse.accepted) {
+			socket.to(data.room).emit("topic create", {
 				username: usernameList[socket.id],
-				message: data.message
+				room: data.room,
+				topic: data.topic,
+				description: data.description,
+				hue: data.hue
 			});
+
+			newTopic(data.room, usernameList[socket.id], data.topic, data.description, data.hue);
 		}
 	});
 }
@@ -175,20 +215,69 @@ function getSocketIdByUsername(username) {
 function processLoginRequest(data) {
 	var loginResponse = { accepted: true, message: "Successfully connected!" };
 
-	if (data.username.match(usernameValidator) == null) {
-		loginResponse.accepted = false;
-		loginResponse.message = "Use only letters, numbers, and hyphens.";
-	}
-
 	if (data.username.length < 3 || data.username.length > 24) {
 		loginResponse.accepted = false;
 		loginResponse.message = "Username must be between 3 and 24 characters.";
+
+		return loginResponse;
+	}
+
+	if (data.username.match(usernameValidator) == null) {
+		loginResponse.accepted = false;
+		loginResponse.message = "Use only letters, numbers, and hyphens.";
+
+		return loginResponse;
 	}
 
 	if (getSocketIdByUsername(data.username) != null) {
 		loginResponse.accepted = false;
 		loginResponse.message = "That username is currently taken.";
+
+		return loginResponse;
 	}
 
 	return loginResponse;
+}
+
+function processTopicCreateRequest(data) {
+	var topicCreateResponse = { accepted: true, message: "Topic created!" };
+
+	if (chatRooms[data.room] == null || chatRooms[data.room] == undefined) {
+		topicCreateResponse.accepted = false;
+		topicCreateResponse.message = "Invalid room.";
+
+		return topicCreateResponse;
+	}
+
+	if (data.topic.length < 3 || data.topic.length > 24) {
+		topicCreateResponse.accepted = false;
+		topicCreateResponse.message = "Topic name must be between 3 and 24 characters.";
+
+		return topicCreateResponse;
+	}
+
+	if (data.topic.match(usernameValidator) == null) {
+		topicCreateResponse.accepted = false;
+		topicCreateResponse.message = "Use only letters, numbers, and hyphens.";
+
+		return topicCreateResponse;
+	}
+
+	if (data.hue == null) {
+		topicCreateResponse.accepted = false;
+		topicCreateResponse.message = "Select a topic color.";
+
+		return topicCreateResponse;
+	}
+
+	for (var i = 0; i < chatRooms[data.room].topics.length; i++) {
+		if (chatRooms[data.room].topics[i].name == data.topic) {
+			topicCreateResponse.accepted = false;
+			topicCreateResponse.message = "That topic already exists.";
+
+			return topicCreateResponse;
+		}
+	}
+
+	return topicCreateResponse;
 }

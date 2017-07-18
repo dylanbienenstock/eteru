@@ -84,6 +84,10 @@ function selectTab(id) {
 	}
 }
 
+function selectTabByName(name) {
+	selectTab(getTabPageBy("name", name).id);
+}
+
 function getTabPageBy(nameOrId, value) {
 	for (var i = 0; i < pages.length; i++) {
 		var pages_i = pages[i];
@@ -100,8 +104,6 @@ function getCurrentTabPage() {
 	return currentTabPage;
 }
 
-//// 
-
 function registerTabAnimations(dragNDrop) {
 	$(".tab--inactive").hover(function() {
 		$(this).css("border-bottom-color", "#808080");
@@ -117,10 +119,6 @@ function registerTabAnimations(dragNDrop) {
 		}
 
 		$(this).css("border-bottom-color", jQuery.Color(color, color, color, 1));
-
-		// $(this).stop().animate({
-		// 	borderBottomColor: jQuery.Color(color, color, color, 1)
-		// }, 150);
 	})
 
 	if (dragNDrop) {

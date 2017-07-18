@@ -28,6 +28,14 @@ $(function() {
 			for (var i = 0; i < data.activeUsers.length; i++) {
 				addActiveUser(data.room, data.activeUsers[i]);;
 			}
+
+			for (var i = 0; i < data.topics.length; i++) {
+				var topic = data.topics[i];
+				
+				newTopic(topic.room, topic.starter, topic.name, topic.description, topic.hue);
+			}
+
+			selectTabByName(data.room);
 		}
 	});
 
@@ -42,11 +50,24 @@ $(function() {
 	});
 
 	socket.on("chat in", function(data) {
-		displayChatMessage(data.room, data.username, data.message);
+		displayChatMessage(data.room, data.topic, data.username, data.message);
 	});
 
 	socket.on("chat server", function(data) {
 		displayServerMessage(getCurrentTabPage().name, data.message);
+	});
+
+	socket.on("topic create response", function(data) {
+		if (data.accepted) {
+			newTopic(data.room, data.username, data.topic, data.description, data.hue);
+			topicAccepted(data.message);
+		} else {
+			topicRejected(data.message);
+		}
+	});
+
+	socket.on("topic create", function(data) {
+		newTopic(data.room, data.username, data.topic, data.description, data.hue);
 	});
 });
 
@@ -58,15 +79,25 @@ function sendLoginRequest(username, password) {
 	});
 }
 
-function sendRoomJoinRequest(roomName) {
+function sendRoomJoinRequest(roomName, openTabInBackground) {
+	if (roomExists(roomName)) return;
+
 	socket.emit("room join request", roomName);
 }
 
-function sendChatMessage(roomName, message) {
+function sendChatMessage(roomName, topicName, message) {
 	socket.emit("chat out", {
 		room: roomName,
+		topic: topicName,
 		message: message
 	});
+}
 
-	console.log("sendChatMessage " + roomName);
+function sendTopicCreateRequest(roomName, topicName, description, hue) {
+	socket.emit("topic create request", {
+		room: roomName,
+		topic: topicName,
+		description: description,
+		hue: hue
+	});
 }

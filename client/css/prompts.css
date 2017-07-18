@@ -1,4 +1,4 @@
-#veil {
+.veil {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -9,7 +9,7 @@
 	z-index: 100000;
 }
 
-#login {
+.prompt {
 	position: absolute;
 	padding: 16px 16px 16px 16px;
 
@@ -19,9 +19,13 @@
 	-webkit-border-radius: 8px;
 	-moz-border-radius: 8px;
 	border-radius: 8px;
+
+	-webkit-box-shadow: 0px 0px 16px 8px rgba(0, 0, 0, 1);
+    -moz-box-shadow: 0px 0px 16px 8px rgba(0, 0, 0, 1);
+	box-shadow: 0px 0px 16px 8px rgba(0, 0, 0, 1);
 }
 
-#login-message {
+.prompt-message {
 	color: red;
 	opacity: 0;
 
@@ -30,7 +34,7 @@
 	font-style: italic;
 }
 
-.login-title {
+.prompt-title {
 	font-family: "Source Code Pro", monospace;
 	font-size: 12px;
 	font-style: italic;
@@ -38,13 +42,13 @@
 	float: left;
 }
 
-.login-label {
+.prompt-label {
 	font-family: "Source Code Pro", monospace;
 	font-size: 16px;
 	font-style: italic;
 }
 
-.login-input {
+.prompt-input {
 	margin-left: 32px;
 	padding-left: 4px;
 
@@ -60,12 +64,17 @@
 	background-color: var(--sidebar-bg);
 }
 
-.login-input:focus {
+.prompt-input:focus {
 	outline: none;
 }
 
-.login-textbutton {
-	font-family: "Source Code Pro", monospace;
-	font-size: 12px;
-	color: #808080;
+#hue-canvas {
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+
+	border: 1px solid #000000;
+
+	margin-top: 16px; /*TEMPORARY*/
+	cursor: pointer;
 }
