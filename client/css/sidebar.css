@@ -63,7 +63,6 @@
 .sidebar-element-title {
 	color: #808080;
 	font-size: 14px;
-	font-family: "Source Code Pro", monospace;
 }
 
 .sidebar-element {
@@ -71,7 +70,6 @@
 	padding: 8px 8px 8px 8px;
 
 	font-size: 14px;
-	font-family: "Source Code Pro", monospace;
 	background-color: var(--chat-bg);
 	color: #808080;
 
@@ -111,5 +109,4 @@
 
 .listing {
 	font-size: 12px;
-	font-family: "Source Code Pro", monospace;
 }

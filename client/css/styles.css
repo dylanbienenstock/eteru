@@ -17,8 +17,11 @@ html, body {
 }
 
 * {
-	/*font-family: "Source Code Pro", monospace;*/
-	font-family: "Times";
+	font-family: "Source Code Pro", monospace;
+}
+
+.times {
+	font-family: "Times", sans-serif;
 }
 
 ::-webkit-scrollbar {
@@ -143,12 +146,12 @@ html, body {
 .tab-label {
 	font-style: italic;
 	font-size: 16px;
+	font-family: "Times", sans-serif;
 }
 
 #topic-display, #topic-dot {
 	color: #A0A0A0;
 	font-size: 16px;
-	font-family: "Source Code Pro", monospace;
 
 	line-height: 38px;
 	white-space: nowrap;
@@ -163,7 +166,6 @@ html, body {
 
 	color: #A0A0A0;
 	font-size: 16px;
-	font-family: "Source Code Pro", monospace;
 
 	border: 0; 
 	outline: none; 
