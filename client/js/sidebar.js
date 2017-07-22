@@ -113,7 +113,7 @@ function resizeTopics() {
 	$("#sbe-current-topics").css({ height: newHeight });
 }
 
-function positionHandles(left) {
+function positionHandles(left, inSidebar) {
 	if (left) {
 		leftHandle.style.left = Math.max($("#left-sidebar").outerWidth() + 12, 12) + "px";
 		leftHandle.style.top = $(document.body).height() / 2 - 16 + "px";
@@ -123,6 +123,18 @@ function positionHandles(left) {
 		rightHandle.style.left = Math.min($("#right-sidebar").offset().left - 32 - 16 - 12, $("body").width() - 12 - 32) + "px";
 		rightHandle.style.top = $(document.body).height() / 2 - 16 + "px";
 	}
+}
+
+function setLeftSidebar(inChatRoom) {
+	if (inChatRoom) {
+		document.getElementById("left-sidebar-content-chat").style.display = "block";
+		document.getElementById("left-sidebar-content-other").style.display = "none";
+	} else {
+		document.getElementById("left-sidebar-content-chat").style.display = "none";
+		document.getElementById("left-sidebar-content-other").style.display = "block";
+	}
+
+	resizeTopics();
 }
 
 function addActiveUserListing(roomName, username) {

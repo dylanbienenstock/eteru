@@ -12,9 +12,11 @@ var chatRooms = {};
 var chatRoomNames = [];
 
 function newChatRoom(roomName, title) {
+	var newPageObject = newPage(roomName, title);
+
 	var newChatRoom = {
 		name: roomName,
-		pageObject: newPage(roomName, title),
+		pageObject: newPageObject,
 		activeUsers: [],
 		topics: {},
 		topicNames: [],
@@ -120,6 +122,7 @@ function setChatRoom(roomName) {
 	clearTopicListings();
 
 	if (room != null && room != undefined) {
+		setLeftSidebar(true);
 		currentRoomName = roomName;
 
 		for (var i = 0; i < room.activeUsers.length; i++) {
@@ -132,6 +135,7 @@ function setChatRoom(roomName) {
 			addTopicListing(topic.roomName, topic.name, topic.hue);
 		}
 	} else {
+		setLeftSidebar(false);
 		currentRoomName = null;
 	}
 }

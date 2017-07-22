@@ -66,6 +66,7 @@ function centerNewTopicMessage() {
 function openNewTopicPrompt() {
 	topicWasAccepted = false;
 
+	$("#new-topic-message").text("");
 	$("#input-new-topic-name").val("");
 	$("#input-new-topic-description").val("");
 	$("#input-new-topic-name").prop("disabled", false);
@@ -181,15 +182,15 @@ function selectColorAt(lineX) {
 
 	lastLineX = lineX;
 
-	$("#new-topic").css({ backgroundColor: chatColorFromHue(selectedHue) });
-	$("#input-new-topic-name").css({ backgroundColor: chatColorFromHue(selectedHue) });
-	$("#input-new-topic-description").css({ backgroundColor: chatColorFromHue(selectedHue) });
+	//$("#new-topic").css({ backgroundColor: chatColorFromHue(selectedHue) });
+	// $("#input-new-topic-name").css({ backgroundColor: chatColorFromHue(selectedHue) });
+	// $("#input-new-topic-description").css({ backgroundColor: chatColorFromHue(selectedHue) });
 
-	clearTimeout(colorResetTimeout);
+	// clearTimeout(colorResetTimeout);
 
-	colorResetTimeout = setTimeout(function() {
-		//$("#new-topic").animate({ backgroundColor: "#303030" }, 400);
-		//$("#input-new-topic-name").animate({ backgroundColor: "#303030" }, 400);
-		//$("#input-new-topic-description").animate({ backgroundColor: "#303030" }, 400);
-	}, 1250);
+	// colorResetTimeout = setTimeout(function() {
+	// 	$("#new-topic").animate({ backgroundColor: "#303030" }, 400);
+	// 	$("#input-new-topic-name").animate({ backgroundColor: "#303030" }, 400);
+	// 	$("#input-new-topic-description").animate({ backgroundColor: "#303030" }, 400);
+	// }, 1250);
 }

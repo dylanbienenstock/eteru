@@ -1,13 +1,45 @@
+#tabs {
+	min-height: 42px;
+	max-height: 42px;
+	box-sizing: border-box;
+	overflow: visible;
+
+	-webkit-box-shadow: 0px 0px 16px 8px rgba(32, 32, 32, 1);
+    -moz-box-shadow: 0px 0px 16px 8px rgba(32, 32, 32, 1);
+	box-shadow: 0px 0px 16px 8px rgba(32, 32, 32, 1);
+
+	border-bottom: 1px solid var(--chat-trim);
+
+	z-index: 3;
+}
+
 #chat {
 	flex: 0 1 100%;
-	border-bottom: 1px solid var(--chat-trim);
 	background-color: var(--chat-bg);
 
-	padding: 0 0 16px 0;
-	z-index: 1;
+	padding: 0 0 0 0;
+	z-index: 2;
 
 	overflow-y: hidden;
 	overflow-x: hidden;
+}
+
+#input {
+	display: flex;
+	flex-flow: row nowrap;
+
+	height: 40px;
+	box-sizing: content-box;
+	border-top: 1px solid var(--chat-trim);
+	border-bottom: 1px solid var(--chat-trim);
+	background-color: var(--chat-bg);
+	padding: 0 10px 0 10px;
+
+/*	-webkit-box-shadow: 0px 0px 16px 8px rgba(32, 32, 32, 1);
+    -moz-box-shadow: 0px 0px 16px 8px rgba(32, 32, 32, 1);
+	box-shadow: 0px 0px 16px 8px rgba(32, 32, 32, 1);*/
+
+	z-index: 3;
 }
 
 .chat-tab-page {
@@ -26,6 +58,11 @@
 
 .message-container-1 {
 	padding: 16px 16px 16px 16px;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	-ms-word-break: break-all;
+    word-break: break-all;
+    white-space: nowrap;
 }
 
 .message-container-2 {
@@ -38,6 +75,11 @@
 	vertical-align:top;
 	display: inline-block;
 	padding-left: 14px;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	-ms-word-break: break-all;
+    word-break: break-all;
+    white-space: normal;
 }
 
 .message {

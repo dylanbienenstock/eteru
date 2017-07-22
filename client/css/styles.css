@@ -57,32 +57,6 @@ html, body {
 	flex: 0 1 100%;
 }
 
-#tabs {
-	min-height: 42px;
-	max-height: 42px;
-	box-sizing: border-box;
-	overflow: visible;
-
-	-webkit-box-shadow: 0px 0px 16px 8px rgba(32, 32, 32, 1);
-    -moz-box-shadow: 0px 0px 16px 8px rgba(32, 32, 32, 1);
-	box-shadow: 0px 0px 16px 8px rgba(32, 32, 32, 1);
-
-	border-bottom: 1px solid var(--chat-trim);
-
-	z-index: 2;
-}
-
-#input {
-	display: flex;
-	flex-flow: row nowrap;
-
-	height: 40px;
-	box-sizing: content-box;
-	border-bottom: 1px solid var(--chat-trim);
-	background-color: var(--chat-bg);
-	padding: 0 10px 0 10px;
-}
-
 .tab--active {
 	display: inline-block;
 	width: auto;

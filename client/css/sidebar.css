@@ -7,7 +7,7 @@
 	border-right: 1px solid var(--chat-trim);
 	background-color: var(--sidebar-bg);
 
-	z-index: 3;
+	z-index: 5;
 }
 
 #right-sidebar {
@@ -16,7 +16,7 @@
 	border-left: 1px solid var(--chat-trim);
 	background-color: var(--sidebar-bg);
 
-	z-index: 3;
+	z-index: 5;
 }
 
 .sidebar-handle {
@@ -24,6 +24,8 @@
 	width: 32px;
 	height: 32px;
 	line-height: 32px;
+	margin-top: auto;
+	margin-bottom: auto;
 	text-align: center;
 	font-size: 20px;
 
@@ -48,11 +50,13 @@
 	user-select: none;
 
 	cursor: pointer;
-	z-index: 100;
+	z-index: 4;
 
 	-webkit-box-shadow: 0px 0px 16px 8px rgba(32, 32, 32, 1);
     -moz-box-shadow: 0px 0px 16px 8px rgba(32, 32, 32, 1);
 	box-shadow: 0px 0px 16px 8px rgba(32, 32, 32, 1);
+
+	font-family: "Times", sans-serif;
 }
 
 .sidebar-element-container-left {
