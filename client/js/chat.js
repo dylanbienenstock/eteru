@@ -123,6 +123,8 @@ function setChatRoom(roomName) {
 
 	if (room != null && room != undefined) {
 		setLeftSidebar(true);
+		setTopic(roomName, room.currentTopicName);
+
 		currentRoomName = roomName;
 
 		for (var i = 0; i < room.activeUsers.length; i++) {
@@ -136,6 +138,7 @@ function setChatRoom(roomName) {
 		}
 	} else {
 		setLeftSidebar(false);
+
 		currentRoomName = null;
 	}
 }
