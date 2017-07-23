@@ -22,7 +22,7 @@ $(function() {
 
 	socket.on("room join response", function(data) {
 		if (data.accepted) {
-			newChatRoom(data.room, data.title);
+			newChatRoom(data.room, data.title, data.description);
 			addActiveUser(data.room, data.username);
 
 			for (var i = 0; i < data.activeUsers.length; i++) {

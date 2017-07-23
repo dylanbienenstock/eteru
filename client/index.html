@@ -19,6 +19,7 @@
 
 		<script src="js/jquery.color.js"></script>
 		<script src="js/jquery.resize.js"></script>
+		<script src="js/jquery.mousewheel.min.js"></script>
 
 		<script src="js/net.js"></script>
 		<script src="js/skip-transition.js"></script>
@@ -28,6 +29,7 @@
 		<script src="js/login.js"></script>
 		<script src="js/chat.js"></script>
 		<script src="js/topic-prompt.js"></script>
+		<script src="js/scroll.js"></script>
 		<script src="js/setup.js"></script>
 
 		<title>ethereal</title>
@@ -42,11 +44,11 @@
 					<span class="sidebar-element-title">room details</span>
 
 					<div id="sbe-room-info" class="sidebar-element">
-						random - this room is for discussions of any topic :^) <br />
+						<span id="sbe-room-info-description"></span> <br />
 						
 						<button id="sbe-room-info-leave" class="compact red noselect" style="margin-top: 8px;">leave</button>
 						<button id="sbe-room-info-rules" class="compact green noselect" style="margin-top: 8px;">rules</button>
-						<button id="sbe-room-info-leave" onclick="openNewTopicPrompt();" class="compact blue noselect" style="margin-top: 8px;">new topic</button>
+						<button id="sbe-room-info-new-topic" onclick="openNewTopicPrompt();" class="compact blue noselect" style="margin-top: 8px;">new topic</button>
 					</div>
 				</div>
 
@@ -76,7 +78,7 @@
 					<span class="sidebar-element-title">commands</span>
 
 					<div id="sbe-commands" class="sidebar-element">
-						
+						<span>none yet :^)</span>
 					</div>
 				</div>
 			</div>

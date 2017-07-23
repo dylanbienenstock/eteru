@@ -31,7 +31,7 @@ TO DO: Reformat this to { name: <type> } instead of { type: name }
 <- "login response" - { bool: accepted, string: username, string: message }
 
 -> "room join request" - string: room
-<- "room join response" - { bool: accepted, string: username, string: room, string: title, string[]: activeUsers, topic[]: topics  }
+<- "room join response" - { bool: accepted, string: username, string: room, string: title, string: description, string[]: activeUsers, topic[]: topics  }
 -> "room leave" - string: room
 
 <- "user connected" - string: username --- connected/disconnected refers to a user joining/leaving the network
@@ -59,12 +59,21 @@ var chatRoomTitles = {
 	"san": "&#x4E09;&nbsp;<span class=\"tab-label\">(san)</span>"
 };
 
+var chatRoomDescriptions = {
+	"rei": "random - this room is for discussions of any topic :^)",
+	"ichi": "no description",
+	"ni": "no description",
+	"san": "no description"
+};
+
 var chatRooms = {};
 var chatRoomNames = [];
 
-function newChatRoom(roomName, title) {
+function newChatRoom(roomName, title, description) {
 	var newChatRoom = {
 		name: roomName,
+		title: title,
+		description: description,
 		activeUsers: [],
 		topics: []
 	};
@@ -87,10 +96,10 @@ function newTopic(roomName, starterName, topicName, description, hue) {
 	chatRooms[roomName].topics.push(newTopic);
 }
 
-newChatRoom("rei", chatRoomTitles["rei"]);
-newChatRoom("ichi", chatRoomTitles["ichi"]);
-newChatRoom("ni", chatRoomTitles["ni"]);
-newChatRoom("san", chatRoomTitles["san"]);
+newChatRoom("rei", chatRoomTitles["rei"], chatRoomDescriptions["rei"]);
+newChatRoom("ichi", chatRoomTitles["ichi"], chatRoomDescriptions["ichi"]);
+newChatRoom("ni", chatRoomTitles["ni"], chatRoomDescriptions["ni"]);
+newChatRoom("san", chatRoomTitles["san"], chatRoomDescriptions["san"]);
 
 function onConnect(socket) {
 	socket.on("disconnect", function() {
@@ -137,7 +146,8 @@ function onConnect(socket) {
 				accepted: true,
 				username: usernameList[socket.id],
 				room: roomName,
-				title: chatRoomTitles[roomName],
+				title: room.title,
+				description: room.description,
 				activeUsers: room.activeUsers,
 				topics: room.topics
 			});
