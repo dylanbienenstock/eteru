@@ -11,11 +11,12 @@ var currentRoomName;
 var chatRooms = {};
 var chatRoomNames = [];
 
-function newChatRoom(roomName, title) {
+function newChatRoom(roomName, title, description) {
 	var newPageObject = newPage(roomName, title);
 
 	var newChatRoom = {
 		name: roomName,
+		description: description,
 		pageObject: newPageObject,
 		activeUsers: [],
 		topics: {},
@@ -31,6 +32,8 @@ function newChatRoom(roomName, title) {
 			messages: null
 		}
 	};
+
+	makeScrollable(newPageObject.page);
 
 	chatRooms[roomName] = newChatRoom;
 	chatRoomNames.push(roomName);
@@ -124,6 +127,7 @@ function setChatRoom(roomName) {
 	if (room != null && room != undefined) {
 		setLeftSidebar(true);
 		setTopic(roomName, room.currentTopicName);
+		$("#sbe-room-info-description").text(room.description);
 
 		currentRoomName = roomName;
 
@@ -141,6 +145,8 @@ function setChatRoom(roomName) {
 
 		currentRoomName = null;
 	}
+
+	resizeTopics();
 }
 
 $(function() {
