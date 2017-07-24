@@ -5,7 +5,7 @@ var io = require("socket.io")(http);
 var validator = require("validator");
 //var favicon = require("serve-favicon");
 
-//app.set("port", (process.env.PORT || 8080));
+app.set("port", (process.env.PORT || 8080));
 
 app.use(express.static("./client"));
 //app.use(favicon("./client/favicon.ico"));
@@ -16,7 +16,7 @@ app.get("/", function(req, res) {
 
 io.on("connection", onConnect);
 
-http.listen(8080, function() {
+http.listen(app.get("port"), function() {
   console.log("Server listening on port 8080.");
 });
 
