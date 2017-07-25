@@ -46,20 +46,21 @@ TO DO: Reformat this to { name: <type> } instead of { type: name }
 -> "topic create request" - { string: room, string: name, string: description, number: hue }
 <- "topic create response" - { bool: accepted, string: username, string: room, string: topic, string: description, string: hue, string: message }
 <- "topic create" - { string: username, string: room, string: description, string: hue }
+<- "topic remove" - { string: room, string: topic }
 
 */
 
 var usernameList = {} // Key: socket.id, Value: username
 var usernameValidator = /^([A-Za-z0-9\-]+)$/g;
 
-var chatRoomTitles = {
+const chatRoomTitles = {
 	"rei": "&#x96F6;&nbsp;<span class=\"tab-label\">(rei)</span>",
 	"ichi": "&#x4E00;&nbsp;<span class=\"tab-label\">(ichi)</span>",
 	"ni": "&#x4E8C;&nbsp;<span class=\"tab-label\">(ni)</span>",
 	"san": "&#x4E09;&nbsp;<span class=\"tab-label\">(san)</span>"
 };
 
-var chatRoomDescriptions = {
+const chatRoomDescriptions = {
 	"rei": "random - this room is for discussions of any topic :^)",
 	"ichi": "no description",
 	"ni": "no description",
@@ -69,13 +70,16 @@ var chatRoomDescriptions = {
 var chatRooms = {};
 var chatRoomNames = [];
 
+const topicTimeout = 15 * 1000 * 60; 
+
 function newChatRoom(roomName, title, description) {
 	var newChatRoom = {
 		name: roomName,
 		title: title,
 		description: description,
 		activeUsers: [],
-		topics: []
+		topics: {},
+		topicNames: []
 	};
 
 	chatRooms[roomName] = newChatRoom;
@@ -90,10 +94,37 @@ function newTopic(roomName, starterName, topicName, description, hue) {
 		starter: starterName,
 		name: topicName,
 		description: description,
-		hue: hue
+		hue: hue,
+		timeout: null
 	};
 
-	chatRooms[roomName].topics.push(newTopic);
+	chatRooms[roomName].topics[topicName] = newTopic;
+	chatRooms[roomName].topicNames.push(topicName);
+
+	resetTopicTimeout(roomName, topicName);
+}
+
+function removeTopic(roomName, topicName) {
+	if (chatRoomNames.includes(roomName) && chatRooms[roomName].topicNames.includes(topicName)) {
+		var i = chatRooms[roomName].topicNames.indexOf(topicName);
+
+		if (i != -1) {
+			delete chatRooms[roomName].topics[topicName];
+			chatRooms[roomName].topicNames.splice(i, 1);
+
+			io.emit("topic remove", {
+				room: roomName,
+				topic: topicName	
+			});
+		}
+	}
+}
+
+function resetTopicTimeout(roomName, topicName) {
+	if (chatRooms[roomName] != null && chatRooms[roomName] != undefined && chatRooms[roomName].topicNames.includes(topicName)) {
+		clearTimeout(chatRooms[roomName].topics[topicName].timeout);
+		chatRooms[roomName].topics[topicName].timeout = (topicName == null ? null : setTimeout(function() { removeTopic(roomName, topicName); }, topicTimeout));
+	}
 }
 
 newChatRoom("rei", chatRoomTitles["rei"], chatRoomDescriptions["rei"]);
@@ -142,6 +173,12 @@ function onConnect(socket) {
 		var room = chatRooms[roomName];
 
 		if (room != null && room != undefined) {
+			var topicsArray = [];
+
+			for (var i = chatRooms[roomName].topicNames.length - 1; i >= 0; i--) {
+				topicsArray[i] = chatRooms[roomName].topics[chatRooms[roomName].topicNames[i]];
+			}
+
 			socket.emit("room join response", {
 				accepted: true,
 				username: usernameList[socket.id],
@@ -149,7 +186,7 @@ function onConnect(socket) {
 				title: room.title,
 				description: room.description,
 				activeUsers: room.activeUsers,
-				topics: room.topics
+				topics: topicsArray
 			});
 
 			socket.to(roomName).emit("user join", {
@@ -181,6 +218,8 @@ function onConnect(socket) {
 					username: usernameList[socket.id],
 					message: data.message
 				});
+
+				resetTopicTimeout(data.room, data.topic);
 			}
 		}
 	});

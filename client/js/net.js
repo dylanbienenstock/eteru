@@ -69,6 +69,11 @@ $(function() {
 	socket.on("topic create", function(data) {
 		newTopic(data.room, data.username, data.topic, data.description, data.hue);
 	});
+
+	socket.on("topic remove", function(data) {
+		removeTopic(data.room, data.topic);
+		displayServerMessage(getCurrentTabPage().name, "Topic " + data.topic + " has closed.");
+	});
 });
 
 // PASSWORDS / ACCOUNTS NOT IMPLEMENTED YET

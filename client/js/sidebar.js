@@ -264,3 +264,16 @@ function addTopicListing(roomName, topicName, hue) { // TO DO: Implement usernam
 		document.getElementById("sbe-current-topics-title").innerHTML = "current topics (" + getTopicCount(roomName) + ")";
 	}
 }
+
+function removeTopicListing(roomName, topicName) {
+	var list = document.getElementById("sbe-current-topics-content");
+	var children = list.children;
+
+	for (var i = 0; i < children.length; i++) {
+		if ($(children[i]).find("span:nth-child(2)").text() == topicName) {
+			list.removeChild(children[i]);
+		}
+	}
+
+	document.getElementById("sbe-current-topics-title").innerHTML = "current topics (" + getTopicCount(roomName) + ")";
+}

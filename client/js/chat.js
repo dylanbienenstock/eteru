@@ -61,6 +61,19 @@ function newTopic(roomName, starterName, topicName, description, hue) {
 	}
 }
 
+function removeTopic(roomName, topicName) {
+	if (chatRoomNames.includes(roomName) && chatRooms[roomName].topicNames.includes(topicName)) {
+		var i = chatRooms[roomName].topicNames.indexOf(topicName);
+
+		if (i != -1) {
+			delete chatRooms[roomName].topics[topicName];
+			chatRooms[roomName].topicNames.splice(i, 1);
+
+			removeTopicListing(roomName, topicName);
+		}
+	}
+}
+
 function setTopic(roomName, topicName) {
 	var room = chatRooms[roomName];
 
