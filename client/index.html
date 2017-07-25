@@ -46,9 +46,11 @@
 					<div id="sbe-room-info" class="sidebar-element">
 						<span id="sbe-room-info-description"></span> <br />
 						
-						<button id="sbe-room-info-leave" class="compact red noselect" style="margin-top: 8px;">leave</button>
-						<button id="sbe-room-info-rules" class="compact green noselect" style="margin-top: 8px;">rules</button>
-						<button id="sbe-room-info-new-topic" onclick="openNewTopicPrompt();" class="compact blue noselect" style="margin-top: 8px;">new topic</button>
+						<div style="margin-top: 8px; display: flex; flex-flow: row nowrap; justify-content: space-between;">
+							<button id="sbe-room-info-leave" class="compact red noselect" style="">leave</button>
+							<button id="sbe-room-info-rules" class="compact green noselect" style="">rules</button>
+							<button id="sbe-room-info-new-topic" onclick="openNewTopicPrompt();" class="compact blue noselect" style="">new topic</button>
+						</div>
 					</div>
 				</div>
 
@@ -129,16 +131,17 @@
 
 			<div id="new-topic-veil" class="veil noselect" style="background-color: rgba(0, 0, 0, 0.5); display: none;">
 				<div id="new-topic" class="prompt">
-					<div style="line-height: 16px;">
-						<span class="prompt-title"> <span style="all: inherit;">new topic - click a color to submit</span> <span style="all: inherit; margin-left: 24px; display: none;">signup</span> </span>
+<!-- 					<div style="line-height: 16px;">
+						<span class="prompt-title"> <span style="all: inherit;">new topic</span> <span style="all: inherit; margin-left: 24px; display: none;">signup</span> </span>
 					</div>
 
 					<div style="clear: both;"></div>
-
-					<div style="margin-top: 16px;"><span id="label-new-topic-name" class="prompt-label" >name</span> <input id="input-new-topic-name" type="text" class="prompt-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="24" autofocus></div>
+ -->
+					<div style=""><span id="label-new-topic-name" class="prompt-label" >name</span> <input id="input-new-topic-name" type="text" class="prompt-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="24" autofocus></div>
 					<div style="margin-top: 16px;"><span id="label-new-topic-description" class="prompt-label" >desc</span> <input id="input-new-topic-description" type="text" class="prompt-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="24" autofocus></div>
 
-					<canvas id="hue-canvas" width="251" height="12" style="margin-top: 20px;"></canvas> <!-- TO DO: Find a way to automatically size this -->
+					<div style="margin-top: 16px;"><span id="label-new-topic-hue" class="prompt-label" style="position: relative; bottom: 5px;">hue&nbsp;</span> 
+					<canvas id="hue-canvas" width="171" height="20"></canvas> </div>
 				</div>
 
 				<span id="new-topic-message" class="prompt-message noselect">|</span>

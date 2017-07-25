@@ -28,6 +28,11 @@ $(function() {
 		selectColorAt(event.pageX - $(canvas).offset().left);
 	});
 
+	$(canvas).mouseleave(function(event) {
+		selectColorAt(-1);
+		$("#hue-display").css({ backgroundColor: "transparent" });
+	});
+
 	centerNewTopicPrompt();
 
 	$(window).resize(function() {
@@ -48,9 +53,16 @@ $(function() {
 });
 
 function centerNewTopicPrompt() {
+	// $("#new-topic").offset({
+	// 	left: $(window).width() / 2 - $("#new-topic").outerWidth() / 2, 
+	// 	top: $(window).height() / 2 - $("#new-topic").outerHeight() / 2
+	// });
+
+	$button = $("#sbe-room-info-new-topic");
+
 	$("#new-topic").offset({
-		left: $(window).width() / 2 - $("#new-topic").outerWidth() / 2, 
-		top: $(window).height() / 2 - $("#new-topic").outerHeight() / 2
+		left: $button.offset().left + $button.outerWidth() + 32,
+		top: $button.offset().top - 16
 	});
 
 	centerNewTopicMessage();
@@ -92,6 +104,8 @@ function openNewTopicPrompt() {
 	}
 
 	centerNewTopicPrompt();
+
+	$("#input-new-topic-name").focus();
 }
 
 function topicAccepted(message) {
@@ -159,28 +173,32 @@ function selectColorAt(lineX) {
 		context.stroke();
 	}
 
-	context.beginPath();
-	context.moveTo(lineX, -1);
-	context.lineTo(lineX, canvasheight + 1);
-	context.lineWidth = 1;
-	context.strokeStyle = chatColorFromHue(selectedHue, true).toHexString();
-	context.stroke();
+	if (lineX != -1) {
+		$("#hue-display").css({ backgroundColor: chatColorFromHue(selectedHue).toHexString() });
 
-	context.beginPath();
-	context.moveTo(lineX - 1, -1);
-	context.lineTo(lineX - 1, canvasheight + 1);
-	context.lineWidth = 1;
-	context.strokeStyle = chatColorFromHue(selectedHue, true).toHexString();
-	context.stroke();
+		context.beginPath();
+		context.moveTo(lineX, -1);
+		context.lineTo(lineX, canvasheight + 1);
+		context.lineWidth = 1;
+		context.strokeStyle = chatColorFromHue(selectedHue, true).toHexString();
+		context.stroke();
 
-	context.beginPath();
-	context.moveTo(lineX + 1, -1);
-	context.lineTo(lineX + 1, canvasheight + 1);
-	context.lineWidth = 1;
-	context.strokeStyle = chatColorFromHue(selectedHue, true).toHexString();
-	context.stroke();
+		context.beginPath();
+		context.moveTo(lineX - 1, -1);
+		context.lineTo(lineX - 1, canvasheight + 1);
+		context.lineWidth = 1;
+		context.strokeStyle = chatColorFromHue(selectedHue, true).toHexString();
+		context.stroke();
 
-	lastLineX = lineX;
+		context.beginPath();
+		context.moveTo(lineX + 1, -1);
+		context.lineTo(lineX + 1, canvasheight + 1);
+		context.lineWidth = 1;
+		context.strokeStyle = chatColorFromHue(selectedHue, true).toHexString();
+		context.stroke();
+
+		lastLineX = lineX;
+	}
 
 	//$("#new-topic").css({ backgroundColor: chatColorFromHue(selectedHue) });
 	// $("#input-new-topic-name").css({ backgroundColor: chatColorFromHue(selectedHue) });
