@@ -3,12 +3,10 @@ var app = express();
 var http = require("http").Server(app);
 var io = require("socket.io")(http); 
 var validator = require("validator");
-//var favicon = require("serve-favicon");
 
 app.set("port", (process.env.PORT || 8080));
 
 app.use(express.static("./client"));
-//app.use(favicon("./client/favicon.ico"));
 
 app.get("/", function(req, res) {
 	res.sendFile("./client/index.html");
@@ -17,7 +15,7 @@ app.get("/", function(req, res) {
 io.on("connection", onConnect);
 
 http.listen(app.get("port"), function() {
-  console.log("Server listening on port 8080.");
+  console.log("Server listening on port " + app.get("port"));
 });
 
 /*
@@ -79,7 +77,8 @@ function newChatRoom(roomName, title, description) {
 		description: description,
 		activeUsers: [],
 		topics: {},
-		topicNames: []
+		topicNames: [],
+		topicTimeouts: {}
 	};
 
 	chatRooms[roomName] = newChatRoom;
@@ -94,8 +93,7 @@ function newTopic(roomName, starterName, topicName, description, hue) {
 		starter: starterName,
 		name: topicName,
 		description: description,
-		hue: hue,
-		timeout: null
+		hue: hue
 	};
 
 	chatRooms[roomName].topics[topicName] = newTopic;
@@ -121,9 +119,11 @@ function removeTopic(roomName, topicName) {
 }
 
 function resetTopicTimeout(roomName, topicName) {
-	if (chatRooms[roomName] != null && chatRooms[roomName] != undefined && chatRooms[roomName].topicNames.includes(topicName)) {
-		clearTimeout(chatRooms[roomName].topics[topicName].timeout);
-		chatRooms[roomName].topics[topicName].timeout = (topicName == null ? null : setTimeout(function() { removeTopic(roomName, topicName); }, topicTimeout));
+	var room = chatRooms[roomName];
+
+	if (room != null && room != undefined && room.topicNames.includes(topicName)) {
+		clearTimeout(room.topicTimeouts[topicName]);
+		room.topicTimeouts[topicName] = (topicName == null ? null : setTimeout(function() { removeTopic(roomName, topicName); }, topicTimeout));
 	}
 }
 
@@ -148,6 +148,7 @@ function onConnect(socket) {
 
 			socket.broadcast.emit("user disconnected", usernameList[socket.id]);
 		}
+
 		delete usernameList[socket.id];
 	});
 
@@ -173,10 +174,11 @@ function onConnect(socket) {
 		var room = chatRooms[roomName];
 
 		if (room != null && room != undefined) {
+
 			var topicsArray = [];
 
-			for (var i = chatRooms[roomName].topicNames.length - 1; i >= 0; i--) {
-				topicsArray[i] = chatRooms[roomName].topics[chatRooms[roomName].topicNames[i]];
+			for (var i = 0 ; i < room.topicNames.length; i++) {
+				topicsArray.push(room.topics[room.topicNames[i]]);
 			}
 
 			socket.emit("room join response", {
@@ -290,8 +292,9 @@ function processLoginRequest(data) {
 
 function processTopicCreateRequest(data) {
 	var topicCreateResponse = { accepted: true, message: "Topic created!" };
+	var room = chatRooms[data.room];
 
-	if (chatRooms[data.room] == null || chatRooms[data.room] == undefined) {
+	if (room == null || room == undefined) {
 		topicCreateResponse.accepted = false;
 		topicCreateResponse.message = "Invalid room.";
 
@@ -319,8 +322,8 @@ function processTopicCreateRequest(data) {
 		return topicCreateResponse;
 	}
 
-	for (var i = 0; i < chatRooms[data.room].topics.length; i++) {
-		if (chatRooms[data.room].topics[i].name == data.topic) {
+	for (var i = 0; i < room.topicNames.length; i++) {
+		if (room.topicNames[i] == data.topic) {
 			topicCreateResponse.accepted = false;
 			topicCreateResponse.message = "That topic already exists.";
 
