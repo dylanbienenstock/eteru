@@ -4,6 +4,8 @@ $(function() {
 	socket = io();
 
 	socket.on("login response", function(data) {
+		document.body.style.cursor = "auto";
+
 		if (data.accepted) {
 			loginAccepted(data.message);
 			addActiveUserListing(data.username);
@@ -58,6 +60,8 @@ $(function() {
 	});
 
 	socket.on("topic create response", function(data) {
+		document.body.style.cursor = "auto";
+
 		if (data.accepted) {
 			newTopic(data.room, data.username, data.topic, data.description, data.hue);
 			topicAccepted(data.message);
@@ -78,6 +82,8 @@ $(function() {
 
 // PASSWORDS / ACCOUNTS NOT IMPLEMENTED YET
 function sendLoginRequest(username, password) {
+	document.body.style.cursor = "wait";
+
 	socket.emit("login request", { 
 		username: username,
 		password: password
@@ -99,6 +105,8 @@ function sendChatMessage(roomName, topicName, message) {
 }
 
 function sendTopicCreateRequest(roomName, topicName, description, hue) {
+	document.body.style.cursor = "wait";
+
 	socket.emit("topic create request", {
 		room: roomName,
 		topic: topicName,
