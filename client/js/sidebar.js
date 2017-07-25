@@ -210,7 +210,6 @@ function addTopicListing(roomName, topicName, hue) { // TO DO: Implement usernam
 		var topicContainer = document.createElement("div");
 		topicContainer.className = "listing-container";
 		topicContainer.style.backgroundColor = color;
-		topicContainer.style.cursor = "pointer";
 
 		var topicToggle = document.createElement("span");
 		topicToggle.className = "listing";
@@ -221,16 +220,46 @@ function addTopicListing(roomName, topicName, hue) { // TO DO: Implement usernam
 		topicText.className = "listing";
 		topicText.innerHTML = topicName;
 
+		var topicExpand;
+		var topicDetailsContainer;
+		var topicDetailsDescription;
+
 		if (topicName == null) {
 			topicText.style.fontStyle = "italic";
 			topicText.innerHTML = "(none)";
 		}
+		else {
+			topicExpand = document.createElement("span");
+			topicExpand.className = "listing";
+			topicExpand.style.float = "right";
+			topicExpand.style.opacity = 0;
+			topicExpand.innerHTML = "&#9660;";
 
-		$(topicContainer).hover(function() {
-			$(topicContainer).stop().animate({ backgroundColor: $.Color(color).lightness("+=0.075") }, 150);
-		}, function() {
-			$(topicContainer).stop().animate({ backgroundColor: color }, 150);
-		});
+			topicDetailsContainer = document.createElement("div");
+			topicDetailsContainer.className = "topic-details-container";
+			topicDetailsContainer.style.display = "none";
+			topicDetailsContainer.style.backgroundColor = color;
+			topicDetailsContainer.style.borderTop = "1px solid " + chatColorFromHue(hue).lightness(0.1).toHexString();
+
+			topicDetailsDescription = document.createElement("span");
+			topicDetailsDescription.className = "listing";
+			topicDetailsDescription.innerHTML = "blahblahblahblahblah";
+		}
+
+		var hoverIn = function() {
+			$(topicContainer).css({ backgroundColor: $.Color(color).lightness("+=0.075") }, 150);
+			$(topicDetailsContainer).css({ backgroundColor: $.Color(color).lightness("+=0.075") }, 150);
+			$(topicExpand).css({ opacity: 1 }, 150);
+		}
+
+		var hoverOut = function() {
+			$(topicContainer).css({ backgroundColor: color }, 150);
+			$(topicDetailsContainer).css({ backgroundColor: color }, 150);
+			$(topicExpand).css({ opacity: 0 }, 150);
+		}
+
+		$(topicContainer).hover(hoverIn, hoverOut);
+		$(topicDetailsContainer).hover(hoverIn, hoverOut);
 
 		$(topicContainer).on("click", function(event) {
 			var clickX = event.pageX - $(topicContainer).offset().left;
@@ -250,18 +279,39 @@ function addTopicListing(roomName, topicName, hue) { // TO DO: Implement usernam
 					setTopicMuted(roomName, topicName, true);
 				}
 			}
+			else if (topicName != null && clickX >= $(topicContainer).width() - 22) {
+				if (topicDetailsContainer.style.display == "none") {
+					topicExpand.innerHTML = "&#9660;";
+					$(topicDetailsContainer).slideDown(150);
+				} else {	
+					topicExpand.innerHTML = "&#9660;";
+					$(topicDetailsContainer).slideUp(150);
+				}
+			}
 			else {
 				topicToggle.innerHTML = "&#9679;&nbsp;";
 				setTopicMuted(roomName, topicName, false);
 				setTopic(roomName, topicName);
 			}
+		}
+);
+		$(topicDetailsContainer).on("click", function(event) {
+			topicToggle.innerHTML = "&#9679;&nbsp;";
+			setTopicMuted(roomName, topicName, false);
+			setTopic(roomName, topicName);
 		});
 
 		topicContainer.appendChild(topicToggle);
 		topicContainer.appendChild(topicText);
-		document.getElementById("sbe-current-topics-content").appendChild(topicContainer);
 
+		document.getElementById("sbe-current-topics-content").appendChild(topicContainer);
 		document.getElementById("sbe-current-topics-title").innerHTML = "current topics (" + getTopicCount(roomName) + ")";
+	
+		if (topicName != null) {
+			topicContainer.appendChild(topicExpand);
+			topicDetailsContainer.appendChild(topicDetailsDescription)
+			document.getElementById("sbe-current-topics-content").appendChild(topicDetailsContainer);
+		}
 	}
 }
 
@@ -271,6 +321,7 @@ function removeTopicListing(roomName, topicName) {
 
 	for (var i = 0; i < children.length; i++) {
 		if ($(children[i]).find("span:nth-child(2)").text() == topicName) {
+			list.removeChild(children[i]);
 			list.removeChild(children[i]);
 		}
 	}

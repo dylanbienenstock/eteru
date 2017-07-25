@@ -109,8 +109,26 @@
 
 .listing-container {
 	padding: 4px 8px 4px 8px;
+	cursor: pointer;
+
+	-webkit-transition: background-color 150ms ease;
+	-moz-transition: background-color 150ms ease;
+	-ms-transition: background-color 150ms ease;
+	-o-transition: background-color 150ms ease;
+	transition: background-color 150ms ease;
 }
 
 .listing {
 	font-size: 12px;
+}
+
+.topic-details-container {
+	padding: 4px 8px 4px 8px;
+	cursor: pointer;
+
+	-webkit-transition: background-color 150ms ease;
+	-moz-transition: background-color 150ms ease;
+	-ms-transition: background-color 150ms ease;
+	-o-transition: background-color 150ms ease;
+	transition: background-color 150ms ease;
 }
