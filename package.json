@@ -14,7 +14,6 @@
     "localtunnel": "^1.8.3",
     "resize-handle": "^5.0.0",
     "socket.io": "^2.0.3",
-    "sqlite3": "^3.1.8",
     "validator": "^8.0.0"
   },
   "repository": {
