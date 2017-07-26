@@ -56,7 +56,7 @@ function newTopic(roomName, starterName, topicName, description, hue) {
 		room.topicNames.push(topicName);
 
 		if (roomName == currentRoomName) {
-			addTopicListing(roomName, topicName, hue);
+			addTopicListing(roomName, topicName, starterName, description, hue);
 		}
 	}
 }
@@ -151,7 +151,7 @@ function setChatRoom(roomName) {
 		for (var i = 0; i < room.topicNames.length; i++) {
 			var topic = room.topics[room.topicNames[i]];
 
-			addTopicListing(topic.roomName, topic.name, topic.hue);
+			addTopicListing(topic.roomName, topic.name, topic.starterName, topic.description, topic.hue);
 		}
 	} else {
 		setLeftSidebar(false);

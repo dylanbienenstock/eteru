@@ -202,7 +202,7 @@ function fixActiveUserListingColors() {
 	}
 }
 
-function addTopicListing(roomName, topicName, hue) { // TO DO: Implement username & description
+function addTopicListing(roomName, topicName, starterName, description, hue) { // TO DO: Implement username & description
 	if (roomExists(roomName)) {
 		var color = (topicName == null ? "#252525" : chatColorFromHue(hue).toHexString());
 		var color2 = (topicName == null ? "#808080" : chatColorFromHue(hue, true).toHexString());
@@ -223,6 +223,9 @@ function addTopicListing(roomName, topicName, hue) { // TO DO: Implement usernam
 		var topicExpand;
 		var topicDetailsContainer;
 		var topicDetailsDescription;
+		var topicDetailsStarter;
+		var topicDetailsMentions;
+		var topicDetailsLastMention;	
 
 		if (topicName == null) {
 			topicText.style.fontStyle = "italic";
@@ -243,7 +246,11 @@ function addTopicListing(roomName, topicName, hue) { // TO DO: Implement usernam
 
 			topicDetailsDescription = document.createElement("span");
 			topicDetailsDescription.className = "listing";
-			topicDetailsDescription.innerHTML = "blahblahblahblahblah";
+			topicDetailsDescription.innerHTML = ((description != null && description.length > 0) ? "\"" + description + "\"" : "No description");
+		
+			topicDetailsStarter = document.createElement("span");
+			topicDetailsStarter.className = "listing";
+			topicDetailsStarter.innerHTML = "Started by " + starterName;
 		}
 
 		var hoverIn = function() {
@@ -281,7 +288,7 @@ function addTopicListing(roomName, topicName, hue) { // TO DO: Implement usernam
 			}
 			else if (topicName != null && clickX >= $(topicContainer).width() - 22) {
 				if (topicDetailsContainer.style.display == "none") {
-					topicExpand.innerHTML = "&#9660;";
+					topicExpand.innerHTML = "&#9650;";
 					$(topicDetailsContainer).slideDown(150);
 				} else {	
 					topicExpand.innerHTML = "&#9660;";
@@ -293,8 +300,8 @@ function addTopicListing(roomName, topicName, hue) { // TO DO: Implement usernam
 				setTopicMuted(roomName, topicName, false);
 				setTopic(roomName, topicName);
 			}
-		}
-);
+		});
+
 		$(topicDetailsContainer).on("click", function(event) {
 			topicToggle.innerHTML = "&#9679;&nbsp;";
 			setTopicMuted(roomName, topicName, false);
@@ -309,7 +316,9 @@ function addTopicListing(roomName, topicName, hue) { // TO DO: Implement usernam
 	
 		if (topicName != null) {
 			topicContainer.appendChild(topicExpand);
-			topicDetailsContainer.appendChild(topicDetailsDescription)
+			topicDetailsContainer.appendChild(topicDetailsDescription);
+			topicDetailsContainer.appendChild(document.createElement("br"));
+			topicDetailsContainer.appendChild(topicDetailsStarter);
 			document.getElementById("sbe-current-topics-content").appendChild(topicDetailsContainer);
 		}
 	}
