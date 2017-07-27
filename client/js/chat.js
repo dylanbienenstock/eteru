@@ -49,7 +49,9 @@ function newTopic(roomName, starterName, topicName, description, hue) {
 			starterName: starterName,
 			name: topicName, 
 			description: description,
-			hue: hue
+			hue: hue,
+			messageCount: 0,
+			lastMessageTime: null
 		};
 
 		room.topics[topicName] = newTopic;

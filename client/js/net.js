@@ -38,6 +38,12 @@ $(function() {
 			}
 
 			selectTabByName(data.room);
+
+			for (var i = 0; i < data.topics.length; i++) {
+				var topic = data.topics[i];
+				
+				updateTopicListingDetails(topic.room, topic.name, topic.messageCount, topic.lastMessageTime);
+			}
 		}
 	});
 
@@ -53,6 +59,7 @@ $(function() {
 
 	socket.on("chat in", function(data) {
 		displayChatMessage(data.room, data.topic, data.username, data.message);
+		updateTopicListingDetails(data.room, data.topic, data.messageCount, data.lastMessageTime);
 	});
 
 	socket.on("chat server", function(data) {

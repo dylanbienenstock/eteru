@@ -8,6 +8,8 @@ var rightSidebarCollapsed = false;
 
 var sidebarFullWidth = 216;
 
+var topicDetailElements = {};
+
 $(function() {
 	leftHandle = document.createElement("div");
 	leftHandle.id = "left-sidebar-handle";
@@ -224,19 +226,20 @@ function addTopicListing(roomName, topicName, starterName, description, hue) { /
 		var topicDetailsContainer;
 		var topicDetailsDescription;
 		var topicDetailsStarter;
-		var topicDetailsMentions;
-		var topicDetailsLastMention;	
+		var topicDetailsMessageCount;
+		var topicDetailsLastMessageTime;	
 
 		if (topicName == null) {
 			topicText.style.fontStyle = "italic";
 			topicText.innerHTML = "(none)";
 		}
 		else {
-			topicExpand = document.createElement("span");
-			topicExpand.className = "listing";
+			topicExpand = document.createElement("img");
+			//topicExpand.className = "listing";
 			topicExpand.style.float = "right";
 			topicExpand.style.opacity = 0;
-			topicExpand.innerHTML = "&#9660;";
+			$(topicExpand).attr("src", "./img/topic-expand.png");
+			//topicExpand.innerHTML = "&#11015;";
 
 			topicDetailsContainer = document.createElement("div");
 			topicDetailsContainer.className = "topic-details-container";
@@ -251,6 +254,24 @@ function addTopicListing(roomName, topicName, starterName, description, hue) { /
 			topicDetailsStarter = document.createElement("span");
 			topicDetailsStarter.className = "listing";
 			topicDetailsStarter.innerHTML = "Started by " + starterName;
+
+			topicDetailsMessageCount = document.createElement("span");
+			topicDetailsMessageCount.className = "listing";
+			topicDetailsMessageCount.innerHTML = "Messages: 0";
+
+			topicDetailsLastMessageTime = document.createElement("span");
+			topicDetailsLastMessageTime.className = "listing";
+			topicDetailsLastMessageTime.innerHTML = "Last message: never";
+
+			console.log("Attempt inst " + topicName + roomName);
+
+			if (topicDetailElements[roomName] == undefined || topicDetailElements[roomName] == null) {
+				topicDetailElements[roomName] = {};
+				console.log("SUCCESS inst : " + topicName + roomName);
+			}
+
+			// TO DO: Remove these when topic is removed (mem leak lol)
+			topicDetailElements[roomName][topicName] = { messageCount: topicDetailsMessageCount, lastMessageTime: topicDetailsLastMessageTime };
 		}
 
 		var hoverIn = function() {
@@ -288,10 +309,12 @@ function addTopicListing(roomName, topicName, starterName, description, hue) { /
 			}
 			else if (topicName != null && clickX >= $(topicContainer).width() - 22) {
 				if (topicDetailsContainer.style.display == "none") {
-					topicExpand.innerHTML = "&#9650;";
+					//topicExpand.innerHTML = "&#11015;";
+					$(topicExpand).attr("src", "./img/topic-collapse.png");
 					$(topicDetailsContainer).slideDown(150);
 				} else {	
-					topicExpand.innerHTML = "&#9660;";
+					//topicExpand.innerHTML = "&#11014;";
+					$(topicExpand).attr("src", "./img/topic-expand.png");
 					$(topicDetailsContainer).slideUp(150);
 				}
 			}
@@ -319,6 +342,10 @@ function addTopicListing(roomName, topicName, starterName, description, hue) { /
 			topicDetailsContainer.appendChild(topicDetailsDescription);
 			topicDetailsContainer.appendChild(document.createElement("br"));
 			topicDetailsContainer.appendChild(topicDetailsStarter);
+			topicDetailsContainer.appendChild(document.createElement("br"));
+			topicDetailsContainer.appendChild(topicDetailsMessageCount);
+			topicDetailsContainer.appendChild(document.createElement("br"));
+			topicDetailsContainer.appendChild(topicDetailsLastMessageTime);
 			document.getElementById("sbe-current-topics-content").appendChild(topicDetailsContainer);
 		}
 	}
@@ -332,8 +359,30 @@ function removeTopicListing(roomName, topicName) {
 		if ($(children[i]).find("span:nth-child(2)").text() == topicName) {
 			list.removeChild(children[i]);
 			list.removeChild(children[i]);
+
+			break;
 		}
 	}
 
 	document.getElementById("sbe-current-topics-title").innerHTML = "current topics (" + getTopicCount(roomName) + ")";
+}
+
+function updateTopicListingDetails(roomName, topicName, messageCount, lastMessageTime) {
+	console.log("updateTopicListingDetails" + roomName, topicName, messageCount, lastMessageTime);
+
+	var roomArray = topicDetailElements[roomName];
+
+	if (roomArray != null && roomArray != undefined) {
+		var topicArray = roomArray[topicName];
+
+		if (topicArray != null && topicArray != undefined && messageCount != null) {
+			if (topicArray.messageCount != null && topicArray.messageCount != undefined) {
+				topicArray.messageCount.innerHTML = "Messages: " + messageCount;
+			}
+
+			if (topicArray.lastMessageTime != null && topicArray.lastMessageTime != undefined && lastMessageTime != null) {
+				topicArray.lastMessageTime.innerHTML = "LMT: " + lastMessageTime;
+			}
+		}
+	}
 }

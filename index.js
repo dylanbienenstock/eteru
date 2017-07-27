@@ -11,7 +11,7 @@ app.use(express.static("./client"));
 app.get("/", function(req, res) {
 	res.sendFile("./client/index.html");
 });
-
+onConnect
 io.on("connection", onConnect);
 
 http.listen(app.get("port"), function() {
@@ -38,7 +38,7 @@ TO DO: Reformat this to { name: <type> } instead of { type: name }
 <- "user leave" - { string: username, string: room }
 
 -> "chat out" - { string: room, string: topic, string: message } --- "out" is relative to client, not server
-<- "chat in" - { string: room, string: topic, string: username, string: message } --- "username" refers to the sender
+<- "chat in" - { string: room, string: topic, string: username, string: message, number: messageCount, number: lastMessageTime } --- "username" refers to the sender
 <- "chat server" - { string: color, string: message } --- Global server message
 
 -> "topic create request" - { string: room, string: name, string: description, number: hue }
@@ -93,7 +93,9 @@ function newTopic(roomName, starterName, topicName, description, hue) {
 		starter: starterName,
 		name: topicName,
 		description: description,
-		hue: hue
+		hue: hue,
+		messageCount: 0,
+		lastMessageTime: null
 	};
 
 	chatRooms[roomName].topics[topicName] = newTopic;
@@ -118,12 +120,17 @@ function removeTopic(roomName, topicName) {
 	}
 }
 
-function resetTopicTimeout(roomName, topicName) {
+function resetTopicTimeout(roomName, topicName, updateCount) {
 	var room = chatRooms[roomName];
 
 	if (room != null && room != undefined && room.topicNames.includes(topicName)) {
 		clearTimeout(room.topicTimeouts[topicName]);
 		room.topicTimeouts[topicName] = (topicName == null ? null : setTimeout(function() { removeTopic(roomName, topicName); }, topicTimeout));
+	
+		if (updateCount) {
+			room.topics[topicName].messageCount++;
+			room.topics[topicName].lastMessageTime = Date.now();
+		}
 	}
 }
 
@@ -210,18 +217,22 @@ function onConnect(socket) {
 	//socket.on("room leave")
 
 	socket.on("chat out", function(data) {
-		if (data.room != null && data.room != undefined && chatRoomNames.includes(data.room)) {
+		if (data.room != null && data.room != undefined && chatRoomNames.includes(data.room) && chatRooms[data.room].topicNames.includes(data.topic)) {
 			console.log("(" + data.room + ") " + usernameList[socket.id] + ": " + data.message);
 
 			if (data.message.length > 0) {
+				var topic = chatRooms[data.room].topics[data.topic];
+
+				resetTopicTimeout(data.room, data.topic, true);
+
 				io.to(data.room).emit("chat in", {
 					room: data.room,
 					topic: data.topic,
 					username: usernameList[socket.id],
-					message: data.message
+					message: data.message,
+					messageCount: topic.messageCount,
+					lastMessageTime: topic.lastMessageTime
 				});
-
-				resetTopicTimeout(data.room, data.topic);
 			}
 		}
 	});
