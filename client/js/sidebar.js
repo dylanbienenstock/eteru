@@ -20,7 +20,7 @@ $(function() {
 	rightHandle.id = "right-sidebar-handle";
 	rightHandle.className = "sidebar-handle";
 	rightHandle.innerHTML = "&rarr;";
-
+ 
 	positionHandles();
 	document.body.appendChild(leftHandle);
 	document.body.appendChild(rightHandle);
@@ -261,13 +261,10 @@ function addTopicListing(roomName, topicName, starterName, description, hue) { /
 
 			topicDetailsLastMessageTime = document.createElement("span");
 			topicDetailsLastMessageTime.className = "listing";
-			topicDetailsLastMessageTime.innerHTML = "Last message: never";
-
-			console.log("Attempt inst " + topicName + roomName);
+			topicDetailsLastMessageTime.innerHTML = "(Last: never)";
 
 			if (topicDetailElements[roomName] == undefined || topicDetailElements[roomName] == null) {
 				topicDetailElements[roomName] = {};
-				console.log("SUCCESS inst : " + topicName + roomName);
 			}
 
 			// TO DO: Remove these when topic is removed (mem leak lol)
@@ -368,20 +365,20 @@ function removeTopicListing(roomName, topicName) {
 }
 
 function updateTopicListingDetails(roomName, topicName, messageCount, lastMessageTime) {
-	console.log("updateTopicListingDetails" + roomName, topicName, messageCount, lastMessageTime);
-
 	var roomArray = topicDetailElements[roomName];
 
 	if (roomArray != null && roomArray != undefined) {
 		var topicArray = roomArray[topicName];
 
-		if (topicArray != null && topicArray != undefined && messageCount != null) {
-			if (topicArray.messageCount != null && topicArray.messageCount != undefined) {
+		if (topicArray != null && topicArray != undefined) {
+			if (messageCount != null && topicArray.messageCount != null && topicArray.messageCount != undefined) {
 				topicArray.messageCount.innerHTML = "Messages: " + messageCount;
 			}
 
-			if (topicArray.lastMessageTime != null && topicArray.lastMessageTime != undefined && lastMessageTime != null) {
-				topicArray.lastMessageTime.innerHTML = "LMT: " + lastMessageTime;
+			if (lastMessageTime != null && topicArray.lastMessageTime != null && topicArray.lastMessageTime != undefined) {
+				var minsAgo = Math.floor((Date.now() - lastMessageTime) / 1000 / 60);
+				console.log(topicName, minsAgo);
+				topicArray.lastMessageTime.innerHTML = "(Last: " + (minsAgo > 0 ? minsAgo : "< 1") + " mins ago)";
 			}
 		}
 	}

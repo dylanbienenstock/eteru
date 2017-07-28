@@ -186,7 +186,38 @@ $(function() {
 	   		$("#input-text").val("");
 	    }
 	});
+
+	updateTopicListingLastMessageTimes();
 });
+
+function updateTopicDetails(roomName, topicName, messageCount, lastMessageTime) {
+	var room = chatRooms[roomName];
+
+	if (room != null && room != undefined) {
+		var topic = room.topics[topicName];
+
+		if (topic != null && topic != undefined) {
+			topic.messageCount = messageCount;
+			topic.lastMessageTime = lastMessageTime;
+
+			updateTopicListingDetails(roomName, topicName, messageCount, lastMessageTime);
+		}
+	}
+}
+
+function updateTopicListingLastMessageTimes() {
+	for (var i = 0; i < chatRoomNames.length; i++) {
+		var room = chatRooms[chatRoomNames[i]];
+
+		for (var i2 = 0; i2 < room.topicNames.length; i2++) {
+			var topic = room.topics[room.topicNames[i2]];
+
+			updateTopicListingDetails(room.name, topic.name, null, topic.lastMessageTime); 
+		}
+	}
+
+	setTimeout(updateTopicListingLastMessageTimes, 10 * 1000);
+}
 
 function addActiveUser(roomName, username) {
 	var room = chatRooms[roomName];

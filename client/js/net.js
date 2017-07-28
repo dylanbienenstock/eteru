@@ -42,7 +42,7 @@ $(function() {
 			for (var i = 0; i < data.topics.length; i++) {
 				var topic = data.topics[i];
 				
-				updateTopicListingDetails(topic.room, topic.name, topic.messageCount, topic.lastMessageTime);
+				updateTopicDetails(topic.room, topic.name, topic.messageCount, topic.lastMessageTime);
 			}
 		}
 	});
@@ -59,7 +59,7 @@ $(function() {
 
 	socket.on("chat in", function(data) {
 		displayChatMessage(data.room, data.topic, data.username, data.message);
-		updateTopicListingDetails(data.room, data.topic, data.messageCount, data.lastMessageTime);
+		updateTopicDetails(data.room, data.topic, data.messageCount, data.lastMessageTime);
 	});
 
 	socket.on("chat server", function(data) {
@@ -71,6 +71,7 @@ $(function() {
 
 		if (data.accepted) {
 			newTopic(data.room, data.username, data.topic, data.description, data.hue);
+			displayServerMessage(data.room, "Topic " + data.topic + " was created.");
 			topicAccepted(data.message);
 		} else {
 			topicRejected(data.message);
@@ -79,6 +80,7 @@ $(function() {
 
 	socket.on("topic create", function(data) {
 		newTopic(data.room, data.username, data.topic, data.description, data.hue);
+		displayServerMessage(data.room, "Topic " + data.topic + " was created.");
 	});
 
 	socket.on("topic remove", function(data) {
