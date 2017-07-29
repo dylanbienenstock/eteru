@@ -79,7 +79,7 @@ function arrangeTabsSkipTransition() {
 
 		if (tab != draggingTab) {
 			skipTransition(tab, function() {
-tab.style.left = offset + "px";
+				tab.style.left = offset + "px";
 			});
 			
 
