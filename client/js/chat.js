@@ -65,13 +65,18 @@ function newTopic(roomName, starterName, topicName, description, hue) {
 
 function removeTopic(roomName, topicName) {
 	if (chatRoomNames.includes(roomName) && chatRooms[roomName].topicNames.includes(topicName)) {
-		var i = chatRooms[roomName].topicNames.indexOf(topicName);
+		var room = chatRooms[roomName];
+		var i = room.topicNames.indexOf(topicName);
 
 		if (i != -1) {
-			delete chatRooms[roomName].topics[topicName];
-			chatRooms[roomName].topicNames.splice(i, 1);
+			delete room.topics[topicName];
+			room.topicNames.splice(i, 1);
 
 			removeTopicListing(roomName, topicName);
+
+			if (room.currentTopicName == topicName) {
+				setTopic(roomName, null);
+			}
 		}
 	}
 }
