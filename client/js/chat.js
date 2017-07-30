@@ -173,7 +173,7 @@ $(function() {
     window.isActive = true;
 
     $(window).blur(function() { this.isActive = false; });
-    
+
     $(window).focus(function() { 
     	document.title = title;
     	this.isActive = true; 
@@ -316,6 +316,25 @@ function displayServerMessage(roomName, message) {
 	displayChatMessageRaw(roomName, null, null, "#080808", true, false, message);
 }
 
+String.prototype.splitOnce = function(delim) {
+	var arr = []; 
+	var i = this.indexOf(delim);
+	console.log(i);
+
+	if (i != -1) {
+		arr[0] = this.substring(0, i);
+
+		if (i != this.length - 1) {
+			arr[1] = this.substring(i + delim.length); 
+		}
+	}
+	else {
+		arr[0] = this.valueOf();
+	}
+
+	return arr;
+}
+
 // TO DO: work on the order of these parameters
 function displayChatMessageRaw(roomName, topicName, sender, color, centered, showDots, message) {
 	var room = chatRooms[roomName];
@@ -380,18 +399,85 @@ function displayChatMessageRaw(roomName, topicName, sender, color, centered, sho
 		var messageText = document.createElement("span");
 		messageText.className = "message-text";
 
+		var messageSplit = message.splitOnce("url[");
+
+		if (messageSplit.length == 1) {
+			$(messageText).text(message);
+		} else {
+			var messageSegments = [];
+			var malformed = false;
+
+			while (messageSplit.length != 1) {
+				messageSegments.push({ type: "text", data: messageSplit[0] });
+
+				messageSplit = messageSplit[1].splitOnce("]");
+				var urlSegments = messageSplit[0].split("|");
+
+				if (urlSegments.length == 2) {
+					var url = document.createElement("a");
+					url.href = urlSegments[0];
+					url.target = "_blank";
+					url.innerHTML = urlSegments[1];
+
+					messageSegments.push({ type: "url", data: url });
+				} else {
+					malformed = true;
+
+					break;
+				}
+				
+				if (messageSplit.length == 2) {
+					messageSplit = messageSplit[1].splitOnce("url[");
+				}
+				else {
+					messageSplit[0] = null;
+
+					break;
+				}
+			}
+
+			if (messageSplit[0] != null) {
+				messageSegments.push({ type: "text", data: messageSplit[0] });
+			}
+
+			if (malformed) {
+				var malformedText = document.createElement("span");
+				malformedText.style.color = "red";
+				malformedText.innerHTML = "(Malformed) ";
+
+				$(messageText).text(messageText).prepend(malformedText);
+			}
+			else {
+				for (var i = 0; i < messageSegments.length; i++) {
+					var messageSegment = messageSegments[i];
+
+					if (messageSegment.type == "text") {
+						var messageSegmentText = document.createElement("span");
+						messageSegmentText.innerHTML = messageSegment.data;
+
+						messageText.appendChild(messageSegmentText);
+					}
+					else if (messageSegment.type == "url") {
+						messageText.appendChild(messageSegment.data);
+					}
+				}
+			}
+		}
+
 		if (centered) {
 			messageText.style.textAlign = "center";
 		}
 
 		if (showDots) {
-			messageText.innerHTML = "<span style=\"opacity: 0.3\">&middot;&nbsp;</span>" + message;
-		} else {
-			messageText.innerHTML = message;
+			var dot = document.createElement("span");
+			dot.style.opacity = 0.3;
+			dot.innerHTML = "&middot;&nbsp;";
+
+			$(messageText).prepend(dot);
 		}
 
 		room.containers.messages.appendChild(messageText);
-		room.containers.messages.appendChild(document.createElement("br"));
+		//room.containers.messages.appendChild(document.createElement("br"));
 
 		room.pageObject.page.scrollTop = room.pageObject.page.scrollHeight;
 		room.lastSender = sender;

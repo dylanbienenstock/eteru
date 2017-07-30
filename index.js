@@ -229,7 +229,7 @@ function onConnect(socket) {
 					room: data.room,
 					topic: data.topic,
 					username: usernameList[socket.id],
-					message: data.message,
+					message: processMessage(data.message),
 					messageCount: topic.messageCount,
 					lastMessageTime: topic.lastMessageTime
 				});
@@ -299,6 +299,14 @@ function processLoginRequest(data) {
 	}
 
 	return loginResponse;
+}
+
+var urlRegex = /(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]/g;
+
+function processMessage(message) {
+	return message.replace(urlRegex, function(match) {
+		return "url[" + (match.startsWith("http") ? match : "http://" + match) + "|" + match + "]";
+	});
 }
 
 function processTopicCreateRequest(data) {
