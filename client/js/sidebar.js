@@ -377,7 +377,7 @@ function updateTopicListingDetails(roomName, topicName, messageCount, lastMessag
 
 			if (lastMessageTime != null && topicArray.lastMessageTime != null && topicArray.lastMessageTime != undefined) {
 				var minsAgo = Math.floor((Date.now() - lastMessageTime) / 1000 / 60);
-				console.log(topicName, minsAgo);
+
 				topicArray.lastMessageTime.innerHTML = "(Last: " + (minsAgo > 0 ? minsAgo : "< 1") + " mins ago)";
 			}
 		}

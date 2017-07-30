@@ -319,7 +319,6 @@ function displayServerMessage(roomName, message) {
 String.prototype.splitOnce = function(delim) {
 	var arr = []; 
 	var i = this.indexOf(delim);
-	console.log(i);
 
 	if (i != -1) {
 		arr[0] = this.substring(0, i);
