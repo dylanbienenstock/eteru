@@ -171,7 +171,9 @@ function setChatRoom(roomName) {
 
 $(function() {
     window.isActive = true;
+
     $(window).blur(function() { this.isActive = false; });
+    
     $(window).focus(function() { 
     	document.title = title;
     	this.isActive = true; 
@@ -322,6 +324,8 @@ function displayChatMessageRaw(roomName, topicName, sender, color, centered, sho
 		if (!window.isActive) {
 			unseenMessage = true;
 			document.title = title + "\u25CB";
+
+			playMessageNotificationSound();
 		}
 
 		if (topicName != null && room.topics[topicName] != null) {
