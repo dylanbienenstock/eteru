@@ -29,7 +29,7 @@ $(function() {
 		if (!leftSidebarAnimating) {
 			var quickDist = Math.abs($(leftHandle).offset().left - event.pageX) + Math.abs($(leftHandle).offset().top - event.pageY);
 
-			if (quickDist <= 300) {
+			if (quickDist <= 300 && event.pageX > $("#left-sidebar").width()) {
 				leftHandle.style.opacity = 1;
 			}
 			else {
@@ -40,7 +40,7 @@ $(function() {
 		if (!rightSidebarAnimating) {
 			var quickDist = Math.abs($(rightHandle).offset().left - event.pageX) + Math.abs($(rightHandle).offset().top - event.pageY);
 
-			if (quickDist <= 300) {
+			if (quickDist <= 300 && event.pageX < $(window).width() - $("#right-sidebar").width()) {
 				rightHandle.style.opacity = 1;
 			}
 			else {
@@ -57,12 +57,14 @@ $(function() {
 				leftSidebarAnimating = false; 
 				leftSidebarCollapsed = true;
 				leftHandle.innerHTML = "&rarr;";
+				leftHandle.style.opacity = 0;
 			});
 		} else {
 			$("#left-sidebar").animate({ width: sidebarFullWidth, minWidth: sidebarFullWidth }, 200, function() {
 				leftSidebarAnimating = false; 
 				leftSidebarCollapsed = false;
 				leftHandle.innerHTML = "&larr;";
+				leftHandle.style.opacity = 0;
 			});
 		}
 	});
@@ -75,12 +77,14 @@ $(function() {
 				rightSidebarAnimating = false; 
 				rightSidebarCollapsed = true;
 				rightHandle.innerHTML = "&larr;";
+				leftHandle.style.opacity = 0;
 			});
 		} else {
 			$("#right-sidebar").animate({ width: sidebarFullWidth, minWidth: sidebarFullWidth }, 200, function() {
 				rightSidebarAnimating = false; 
 				rightSidebarCollapsed = false;
 				rightHandle.innerHTML = "&rarr;";
+				leftHandle.style.opacity = 0;
 			});
 		}
 	});
